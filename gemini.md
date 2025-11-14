@@ -24,11 +24,16 @@ The workflow is divided into two distinct phases:
 
 ### Development Log
 
+*   **Project Structuring:** Implemented a professional, reproducible project structure.
+    *   Created a comprehensive `README.md` with project overview, setup, and usage instructions.
+    *   Generated `requirements.txt` and restored `environment.yml` for robust dependency management.
+    *   Established a `tests/` directory with an initial test for the metrics module to enforce code quality.
+    *   Restored `data/` and `notebooks/` directories to the project root.
 *   **Modularization:** Refactored the project by moving core components into the `src` directory.
     *   Strategy generation logic moved to `src/strategy.py`.
     *   Backtesting engine (`StrategyBacktester`) moved to `src/backtest_engine.py`, making the project self-contained.
     *   Data loading functionality centralized in `src/data_loader.py`.
     *   Metrics calculations (`short_backtest`, `get_annualization_factor`) moved to `src/metrics.py`.
 *   **Project Cleanup:** Moved all unused files and directories into a dedicated `unused_files` folder to declutter the project structure.
-*   **Git:** Created checkpoints for the major refactoring and cleanup changes.
+*   **Git:** Created checkpoints for all major refactoring and structuring changes.
 *   **Configuration:** Added a comprehensive `.gitignore` file for Python projects.

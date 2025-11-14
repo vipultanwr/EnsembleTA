@@ -1,0 +1,17 @@
+asset,timeframe,n_top_strategies,signal_shifts,Total Return,Annualized Return,Volatility,Sharpe Ratio,Sortino Ratio,Calmar Ratio,Maximum Drawdown,Win Rate,Total Trades,Profit Factor,Average Win,Average Loss
+BTC/USDT,1h,5,[1],9.55%,183.11%,N/A in bt,1.64,N/A in bt,N/A in bt,15.16%,47.53%,162,1.16,923.50,-724.27
+BTC/USDT,1h,5,"[1, 2]",9.55%,183.11%,N/A in bt,1.64,N/A in bt,N/A in bt,15.16%,47.53%,162,1.16,923.50,-724.27
+BTC/USDT,1h,10,[1],-4.53%,-41.11%,N/A in bt,-0.54,N/A in bt,N/A in bt,21.55%,47.11%,121,0.93,997.66,-971.46
+BTC/USDT,1h,10,"[1, 2]",36.03%,3253.36%,N/A in bt,5.66,N/A in bt,N/A in bt,16.37%,56.41%,117,1.77,1255.06,-917.64
+BTC/USDT,4h,5,[1],14.02%,346.91%,N/A in bt,2.00,N/A in bt,N/A in bt,14.28%,50.00%,34,1.18,1971.66,-1771.96
+BTC/USDT,4h,5,"[1, 2]",-0.24%,-2.71%,N/A in bt,0.24,N/A in bt,N/A in bt,22.70%,35.00%,20,0.72,2862.81,-2312.67
+BTC/USDT,4h,10,[1],8.52%,154.38%,N/A in bt,1.41,N/A in bt,N/A in bt,15.79%,35.00%,20,1.06,3304.41,-1823.14
+BTC/USDT,4h,10,"[1, 2]",8.81%,162.27%,N/A in bt,1.47,N/A in bt,N/A in bt,15.79%,47.62%,21,1.21,2595.48,-2144.01
+ETH/USDT,1h,5,[1],-0.92%,-10.06%,N/A in bt,0.20,N/A in bt,N/A in bt,17.38%,42.92%,233,0.99,1127.05,-854.36
+ETH/USDT,1h,5,"[1, 2]",-11.96%,-76.63%,N/A in bt,-1.27,N/A in bt,N/A in bt,25.12%,44.23%,260,0.89,879.86,-780.28
+ETH/USDT,1h,10,[1],-10.10%,-70.33%,N/A in bt,-0.78,N/A in bt,N/A in bt,23.63%,40.25%,159,0.88,1188.76,-907.15
+ETH/USDT,1h,10,"[1, 2]",5.26%,79.58%,N/A in bt,0.93,N/A in bt,N/A in bt,15.36%,44.83%,232,1.05,1162.54,-903.44
+ETH/USDT,4h,5,[1],1.02%,12.34%,N/A in bt,0.43,N/A in bt,N/A in bt,18.22%,53.12%,32,1.02,2524.26,-2792.52
+ETH/USDT,4h,5,"[1, 2]",-4.59%,-41.49%,N/A in bt,-0.31,N/A in bt,N/A in bt,24.48%,55.00%,20,0.85,2444.84,-3497.76
+ETH/USDT,4h,10,[1],-12.16%,-77.24%,N/A in bt,-1.33,N/A in bt,N/A in bt,22.39%,51.52%,33,0.74,1998.34,-2883.34
+ETH/USDT,4h,10,"[1, 2]",-7.85%,-60.67%,N/A in bt,-0.78,N/A in bt,N/A in bt,19.15%,46.15%,26,0.80,2499.95,-2868.63

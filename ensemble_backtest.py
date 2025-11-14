@@ -8,65 +8,36 @@ from src.backtest_engine import StrategyBacktester
 from src.strategy import getTACombinedSignals
 from src.metrics import short_backtest
 
-from config import *
+# Import constants that will NOT be tuned
+from config import (
+    RANKING_START_DATE, RANKING_END_DATE,
+    BACKTEST_START_DATE, BACKTEST_END_DATE,
+    COMMISSION_PCT, SLIPPAGE_PCT, INITIAL_CASH
+)
 
 
 class EnsembleRanker:
-
-
     """
-
-
     Handles the process of fetching data, generating signals,
-
-
     and ranking strategies to find the best performers.
-
-
     """
-
-
-    def __init__(self, asset, start_date, end_date, timeframe):
-
-
+    def __init__(self, asset, start_date, end_date, timeframe, signal_shifts):
         self.asset = asset
-
-
         self.start_date = start_date
-
-
         self.end_date = end_date
-
-
         self.timeframe = timeframe
-
-
+        self.signal_shifts = signal_shifts
         self.ranking_data = self._load_data()
-
-
-
-
 
     def _load_data(self):
         """Loads data for the entire ranking period at once."""
         return load_crypto_data(self.asset, self.start_date, self.end_date, self.timeframe)
 
-
-
-
-
-
-
-
-
-
-
     def generate_rankings(self):
         """
         Generates and ranks all strategies across the entire dataset.
-        This is much more efficient than the month-by-month approach.
         """
-        print("Generating signals using getTACombinedSignals...")
+        print(f"Generating signals for {self.asset} ({self.timeframe})...")
         all_signals = getTACombinedSignals(self.ranking_data, returnall=True)
         returns = self.ranking_data.close.pct_change().fillna(0)
 
@@ -75,7 +46,7 @@ class EnsembleRanker:
 
         print(f"Ranking {len(all_signals.columns)} strategies...")
         for strategy in all_signals.columns:
-            for shift in SIGNAL_SHIFTS:
+            for shift in self.signal_shifts:
                 # Forward strategy
                 sig = all_signals[strategy].shift(shift).fillna(0)
                 ret = returns
@@ -98,13 +69,17 @@ class EnsembleRanker:
         return df_fwd, df_rvs
 
 
-def run_ensemble_backtest(top_fwd, top_rvs):
+def run_ensemble_backtest(top_fwd, top_rvs, asset, timeframe):
+    """
+    Runs the final out-of-sample backtest for a given set of top strategies.
+    Returns the performance metrics.
+    """
     print("\n--- Running Final Ensemble Backtest ---")
     try:
-        backtest_df = load_crypto_data(ASSET, BACKTEST_START_DATE, BACKTEST_END_DATE, TIMEFRAME)
+        backtest_df = load_crypto_data(asset, BACKTEST_START_DATE, BACKTEST_END_DATE, timeframe)
     except ValueError as e:
-        print(f"Could not fetch data for the final backtest period. Exiting. Error: {e}")
-        return
+        print(f"Could not fetch data for the final backtest period: {e}")
+        return None
 
     print("Generating signals for backtest period...")
     backtest_signals = getTACombinedSignals(backtest_df, True)
@@ -113,19 +88,21 @@ def run_ensemble_backtest(top_fwd, top_rvs):
     ensemble_signal_series = pd.Series(0.0, index=backtest_signals.index)
 
     # Add signals from top forward strategies
-    for strat, shift in top_fwd.index:
-        if strat in backtest_signals.columns:
-            ensemble_signal_series += backtest_signals[strat].shift(shift)
+    if not top_fwd.empty:
+        for strat, shift in top_fwd.index:
+            if strat in backtest_signals.columns:
+                ensemble_signal_series += backtest_signals[strat].shift(shift)
 
     # Add signals from top reverse strategies
-    for strat, shift in top_rvs.index:
-        if strat in backtest_signals.columns:
-            ensemble_signal_series += -1 * backtest_signals[strat].shift(shift)
+    if not top_rvs.empty:
+        for strat, shift in top_rvs.index:
+            if strat in backtest_signals.columns:
+                ensemble_signal_series += -1 * backtest_signals[strat].shift(shift)
 
     # Convert the summed votes into a final signal: 1 (buy), -1 (sell), 0 (hold)
     backtest_df['Signals'] = np.sign(ensemble_signal_series).fillna(0)
 
-    print("Running final backtest with CoreQuantUtilities...")
+    print("Running final backtest...")
     bt_backtester = StrategyBacktester(
         commission=COMMISSION_PCT, slippage=SLIPPAGE_PCT, initial_cash=INITIAL_CASH
     )
@@ -136,29 +113,44 @@ def run_ensemble_backtest(top_fwd, top_rvs):
     bt_backtester.backtest(backtest_df, signal_col='Signals')
 
     print("\n--- Ensemble Backtest Results ---")
-    bt_backtester.print_metrics()
-    bt_backtester.plot_results(style='candlestick')
+    metrics = bt_backtester.calculate_metrics()
+    for key, value in metrics.items():
+        print(f"{key:<25}: {value}")
+
+    # Optional: Plotting can be enabled if needed, but is disabled for orchestration
+    # bt_backtester.plot_results(style='candlestick')
+    
+    return metrics
 
 
-if __name__ == '__main__':
+def run_single_test(asset, timeframe, n_top_strategies, signal_shifts):
+    """
+    Runs a full ranking and backtest cycle for a single set of parameters.
+    """
+    print("\n" + "="*50)
+    print(f"Running Test for: ASSET={asset}, TIMEFRAME={timeframe}, N_TOP={n_top_strategies}, SHIFTS={signal_shifts}")
+    print("="*50)
 
     # --- Step 1: Rank all strategies ---
-    ranker = EnsembleRanker(ASSET, RANKING_START_DATE, RANKING_END_DATE, TIMEFRAME)
+    ranker = EnsembleRanker(
+        asset=asset,
+        start_date=RANKING_START_DATE,
+        end_date=RANKING_END_DATE,
+        timeframe=timeframe,
+        signal_shifts=signal_shifts
+    )
     df_fwd, df_rvs = ranker.generate_rankings()
 
     # --- Step 2: Select top strategies based on a metric ---
-    top_fwd_strategies = df_fwd.sort_values(by='final_return', ascending=False).head(N_TOP_STRATEGIES)
-    top_rvs_strategies = df_rvs.sort_values(by='final_return', ascending=False).head(N_TOP_STRATEGIES)
+    top_fwd_strategies = df_fwd.sort_values(by='final_return', ascending=False).head(n_top_strategies)
+    top_rvs_strategies = df_rvs.sort_values(by='final_return', ascending=False).head(n_top_strategies)
 
-    print(f"\n--- Top {N_TOP_STRATEGIES} Forward Strategies ---")
+    print(f"\n--- Top {n_top_strategies} Forward Strategies ---")
     print(top_fwd_strategies)
-    print(f"\n--- Top {N_TOP_STRATEGIES} Reverse Strategies ---")
+    print(f"\n--- Top {n_top_strategies} Reverse Strategies ---")
     print(top_rvs_strategies)
 
-    # Save the top forward strategies to a pickle file
-    top_fwd_strategies.to_pickle("top_fwd_strategies.pkl")
-    top_rvs_strategies.to_pickle("top_rvs_strategies.pkl")
-
-
     # --- Step 3: Run the final out-of-sample backtest ---
-    run_ensemble_backtest(top_fwd_strategies, top_rvs_strategies)
+    metrics = run_ensemble_backtest(top_fwd_strategies, top_rvs_strategies, asset, timeframe)
+
+    return metrics
