@@ -24,6 +24,7 @@ The workflow is divided into two distinct phases:
 
 ### Development Log
 
+*   **Advanced Visualization:** Integrated the `quantstats` library to generate comprehensive HTML performance reports, providing a professional and in-depth view of the strategy's performance. A new `src/plotting.py` module was created for this purpose.
 *   **Centralized Hyperparameters:** Moved the `param_grid` definition from `run_orchestrator.py` to `config.py` to centralize all configuration parameters, making the project easier to manage and tune.
 *   **Hyperparameter Tuning:** Implemented an orchestration script (`run_orchestrator.py`) to perform a grid search over a defined set of parameters (`asset`, `timeframe`, `n_top_strategies`, `signal_shifts`). This allows for systematic evaluation of different strategy configurations.
 *   **Code Refactoring:** Refactored `ensemble_backtest.py` into a callable library function (`run_single_test`) to be used by the orchestrator.

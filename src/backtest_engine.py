@@ -194,20 +194,22 @@ class StrategyBacktester:
         
         # More robust annualization factor calculation
         if len(self.results.index) > 1:
-            # Calculate the total time span of the backtest in days
             time_span_days = (self.results.index[-1] - self.results.index[0]).days
-            # Avoid division by zero for single-day backtests
-            if time_span_days == 0:
-                time_span_years = 1 / 365.25
-            else:
-                time_span_years = time_span_days / 365.25
         else:
-            time_span_years = 0
+            time_span_days = 0
         
         total_return = (self.cerebro.broker.getvalue() / self.initial_cash) - 1
-        # Adjust annualized return calculation to use the total time span
-        annualized_return = (1 + total_return) ** (1 / time_span_years) - 1 if time_span_years > 0 else 0
-        
+
+        # --- Improved Annualized Return Calculation ---
+        # Only annualize if the backtest period is reasonably long (e.g., > 30 days)
+        # to avoid misleadingly high numbers from short-term gains.
+        if time_span_days > 30:
+            time_span_years = time_span_days / 365.25
+            annualized_return = (1 + total_return) ** (1 / time_span_years) - 1 if time_span_years > 0 else 0
+        else:
+            # For short periods, annualization is misleading. Report as N/A.
+            annualized_return = "N/A (period < 30 days)"
+
         win_rate = trade_analyzer.won.total / trade_analyzer.total.total if 'won' in trade_analyzer and trade_analyzer.total.total > 0 else 0
         avg_win = trade_analyzer.won.pnl.average if 'won' in trade_analyzer and trade_analyzer.won.total > 0 else 0
         avg_loss = trade_analyzer.lost.pnl.average if 'lost' in trade_analyzer and trade_analyzer.lost.total > 0 else 0
@@ -215,7 +217,7 @@ class StrategyBacktester:
 
         metrics = {
             'Total Return': f"{total_return:.2%}",
-            'Annualized Return': f"{annualized_return:.2%}",
+            'Annualized Return': annualized_return if isinstance(annualized_return, str) else f"{annualized_return:.2%}",
             'Volatility': "N/A in bt", # PyFolio can calculate this
             'Sharpe Ratio': f"{analyzers.sharpe.get_analysis().get('sharperatio', 0):.2f}",
             'Sortino Ratio': "N/A in bt", # PyFolio can calculate this

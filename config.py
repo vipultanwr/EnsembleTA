@@ -7,9 +7,9 @@ Tunable parameters are defined in `run_orchestrator.py`.
 
 # --- Fixed Date Parameters ---
 RANKING_START_DATE = '2021-01-01'
-RANKING_END_DATE = '2021-03-31'
-BACKTEST_START_DATE = '2022-05-01'
-BACKTEST_END_DATE = '2022-06-01'
+RANKING_END_DATE = '2021-12-31'
+BACKTEST_START_DATE = '2022-01-01'
+BACKTEST_END_DATE = '2022-12-31'
 
 # --- Fixed Backtesting Parameters ---
 INITIAL_CASH = 100000.0
