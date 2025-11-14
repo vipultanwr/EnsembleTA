@@ -35,6 +35,11 @@ The workflow is divided into two distinct phases:
 
 ### Development Log
 
+*   **Modernized Dashboard UI:** Updated the `generate_dashboard.py` script to create a `results_dashboard.html` file with an "Apple glass screen-like modern UI design". This involved adding CSS for a glassmorphism effect, updating fonts, and improving the overall layout.
+*   **Expanded Hyperparameters:** Researched and updated the `param_grid` in `config.py` with a much larger and more diverse set of hyperparameters for a large-scale backtest. This included adding more assets, timeframes, a wider range of `n_top_strategies`, and more `signal_shifts`.
+*   **Large-Scale Backtest:** Executed the `run_orchestrator.py` script to run the backtest with the new hyperparameters, generating a new `master_results.csv` file.
+*   **Dashboard Update:** Regenerated the `results_dashboard.html` to display the results from the new backtest.
+*   **Gitignore Update:** Updated the `.gitignore` file to prevent `unused_files/`, `results/`, `__pycache__/`, and `.DS_Store` from being pushed to the remote repository.
 *   **Interactive Dashboard:** Created an interactive HTML dashboard (`results_dashboard.html`) to display master results using DataTables.js. This makes it easy to search, sort, and compare the results of different hyperparameter combinations.
 *   **Automated Reporting:** Modified the orchestration process to generate a unique QuantStats report for every backtest run. The dashboard rows are clickable and link to the detailed HTML report for each run.
 *   **Metrics Correction:** Fixed the misleading `Annualized Return` calculation by extending the default backtest period to a full year in `config.py`, ensuring more realistic and statistically sound results.
