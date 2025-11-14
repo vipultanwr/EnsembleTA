@@ -29,5 +29,6 @@ The workflow is divided into two distinct phases:
     *   Backtesting engine (`StrategyBacktester`) moved to `src/backtest_engine.py`, making the project self-contained.
     *   Data loading functionality centralized in `src/data_loader.py`.
     *   Metrics calculations (`short_backtest`, `get_annualization_factor`) moved to `src/metrics.py`.
-*   **Git:** Created the first git checkpoint for the major refactoring changes.
+*   **Project Cleanup:** Moved all unused files and directories into a dedicated `unused_files` folder to declutter the project structure.
+*   **Git:** Created checkpoints for the major refactoring and cleanup changes.
 *   **Configuration:** Added a comprehensive `.gitignore` file for Python projects.
