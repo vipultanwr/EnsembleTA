@@ -19,3 +19,15 @@ The workflow is divided into two distinct phases:
 *   **Libraries:** `pandas` for data handling, `fastquant` for fetching crypto data, and `talib` for technical indicators.
 *   **Custom Utilities:** The project relies on a custom library, `CoreQuantUtilities`, for core functionalities like the `StrategyBacktester` and the `getTACombinedSignals` function.
 *   **Evolution:** The project started with exploratory analysis in Jupyter Notebooks (`notebooks/`) and is now being refactored into a more structured and reusable format using Python scripts (`ensemble_backtest.py`, `config.py`, etc.).
+
+---
+
+### Development Log
+
+*   **Modularization:** Refactored the project by moving core components into the `src` directory.
+    *   Strategy generation logic moved to `src/strategy.py`.
+    *   Backtesting engine (`StrategyBacktester`) moved to `src/backtest_engine.py`, making the project self-contained.
+    *   Data loading functionality centralized in `src/data_loader.py`.
+    *   Metrics calculations (`short_backtest`, `get_annualization_factor`) moved to `src/metrics.py`.
+*   **Git:** Created the first git checkpoint for the major refactoring changes.
+*   **Configuration:** Added a comprehensive `.gitignore` file for Python projects.
