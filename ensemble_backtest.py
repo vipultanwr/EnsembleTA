@@ -69,7 +69,7 @@ class EnsembleRanker:
         return df_fwd, df_rvs
 
 
-def run_ensemble_backtest(top_fwd, top_rvs, asset, timeframe):
+def run_ensemble_backtest(top_fwd, top_rvs, asset, timeframe, plot=False):
     """
     Runs the final out-of-sample backtest for a given set of top strategies.
     Returns the performance metrics.
@@ -117,13 +117,16 @@ def run_ensemble_backtest(top_fwd, top_rvs, asset, timeframe):
     for key, value in metrics.items():
         print(f"{key:<25}: {value}")
 
-    # Optional: Plotting can be enabled if needed, but is disabled for orchestration
-    # bt_backtester.plot_results(style='candlestick')
+    if plot:
+        from src.plotting import generate_quantstats_report
+        returns = bt_backtester.results['returns']
+        report_filename = f"results/{asset.replace('/', '_')}_{timeframe}_report.html"
+        generate_quantstats_report(returns, title=f"{asset} {timeframe} Ensemble Strategy", output_filename=report_filename)
     
     return metrics
 
 
-def run_single_test(asset, timeframe, n_top_strategies, signal_shifts):
+def run_single_test(asset, timeframe, n_top_strategies, signal_shifts, plot=False):
     """
     Runs a full ranking and backtest cycle for a single set of parameters.
     """
@@ -151,6 +154,6 @@ def run_single_test(asset, timeframe, n_top_strategies, signal_shifts):
     print(top_rvs_strategies)
 
     # --- Step 3: Run the final out-of-sample backtest ---
-    metrics = run_ensemble_backtest(top_fwd_strategies, top_rvs_strategies, asset, timeframe)
+    metrics = run_ensemble_backtest(top_fwd_strategies, top_rvs_strategies, asset, timeframe, plot=plot)
 
     return metrics

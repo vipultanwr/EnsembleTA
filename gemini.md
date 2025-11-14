@@ -7,7 +7,7 @@ The workflow is divided into two distinct phases:
 1.  **Ranking Phase (In-Sample):**
     *   A large number of technical analysis strategies are generated using the `TA-Lib` library.
     *   Each strategy is backtested individually (in both "forward" and "reverse" variations) over a specific historical "ranking" period.
-    *   They are ranked based on performance metrics such as final return, Sharpe ratio, and profit factor.
+    *   They are ranked based on performance metrics suchs as final return, Sharpe ratio, and profit factor.
     *   The top-performing strategies are selected and saved for the next phase.
 
 2.  **Ensemble Backtesting Phase (Out-of-Sample):**
@@ -24,6 +24,7 @@ The workflow is divided into two distinct phases:
 
 ### Development Log
 
+*   **Centralized Hyperparameters:** Moved the `param_grid` definition from `run_orchestrator.py` to `config.py` to centralize all configuration parameters, making the project easier to manage and tune.
 *   **Hyperparameter Tuning:** Implemented an orchestration script (`run_orchestrator.py`) to perform a grid search over a defined set of parameters (`asset`, `timeframe`, `n_top_strategies`, `signal_shifts`). This allows for systematic evaluation of different strategy configurations.
 *   **Code Refactoring:** Refactored `ensemble_backtest.py` into a callable library function (`run_single_test`) to be used by the orchestrator.
 *   **Project Structuring:** Implemented a professional, reproducible project structure.

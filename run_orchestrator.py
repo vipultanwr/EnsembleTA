@@ -61,8 +61,21 @@ def run_orchestration():
     results_df.to_csv(output_path, index=False)
 
     print("\n--- Orchestration Complete ---")
+    best_results = results_df.sort_values(by='Sharpe Ratio', ascending=False)
     print("Top 5 results based on Sharpe Ratio:")
-    print(results_df.sort_values(by='Sharpe Ratio', ascending=False).head(5))
+    print(best_results.head(5))
+
+    # --- Generate a detailed report for the best run ---
+    if not best_results.empty:
+        print("\n--- Generating detailed report for the best performing strategy ---")
+        best_params = best_results.iloc[0].to_dict()
+        run_single_test(
+            asset=best_params['asset'],
+            timeframe=best_params['timeframe'],
+            n_top_strategies=int(best_params['n_top_strategies']),
+            signal_shifts=best_params['signal_shifts'],
+            plot=True
+        )
 
 
 if __name__ == '__main__':
