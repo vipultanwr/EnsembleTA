@@ -15,3 +15,11 @@ BACKTEST_END_DATE = '2022-06-01'
 INITIAL_CASH = 100000.0
 COMMISSION_PCT = 0.0
 SLIPPAGE_PCT = 0.0
+
+# --- Tunable Parameters (Hyperparameters for Orchestration) ---
+param_grid = {
+    'asset': ['BTC/USDT', 'ETH/USDT'],
+    'timeframe': ['1h', '4h'],
+    'n_top_strategies': [5, 10],
+    'signal_shifts': [[1], [1, 2]]
+}

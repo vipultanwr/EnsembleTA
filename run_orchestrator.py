@@ -2,19 +2,14 @@ import pandas as pd
 import itertools
 import os
 from ensemble_backtest import run_single_test
+from config import param_grid
 
 def run_orchestration():
     """
     Runs the ensemble backtest for multiple combinations of parameters (grid search).
     """
-    # --- Define the parameter grid ---
-    # Add more parameters here to expand the search
-    param_grid = {
-        'asset': ['BTC/USDT', 'ETH/USDT'],
-        'timeframe': ['1h', '4h'],
-        'n_top_strategies': [5, 10],
-        'signal_shifts': [[1], [1, 2]]
-    }
+
+
 
     # Create all combinations of parameters
     keys, values = zip(*param_grid.items())

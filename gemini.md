@@ -24,6 +24,8 @@ The workflow is divided into two distinct phases:
 
 ### Development Log
 
+*   **Hyperparameter Tuning:** Implemented an orchestration script (`run_orchestrator.py`) to perform a grid search over a defined set of parameters (`asset`, `timeframe`, `n_top_strategies`, `signal_shifts`). This allows for systematic evaluation of different strategy configurations.
+*   **Code Refactoring:** Refactored `ensemble_backtest.py` into a callable library function (`run_single_test`) to be used by the orchestrator.
 *   **Project Structuring:** Implemented a professional, reproducible project structure.
     *   Created a comprehensive `README.md` with project overview, setup, and usage instructions.
     *   Generated `requirements.txt` and restored `environment.yml` for robust dependency management.
@@ -36,4 +38,4 @@ The workflow is divided into two distinct phases:
     *   Metrics calculations (`short_backtest`, `get_annualization_factor`) moved to `src/metrics.py`.
 *   **Project Cleanup:** Moved all unused files and directories into a dedicated `unused_files` folder to declutter the project structure.
 *   **Git:** Created checkpoints for all major refactoring and structuring changes.
-*   **Configuration:** Added a comprehensive `.gitignore` file for Python projects.
+*   **Configuration:** Added a comprehensive `.gitignore` file for Python projects and updated `config.py` to only contain fixed parameters.
