@@ -92,3 +92,11 @@ cython_debug/
 # Generated files
 *.pkl
 *.html
+
+# Generated artifacts
+results/
+unused_files/
+
+# Generated artifacts
+results/
+unused_files/
