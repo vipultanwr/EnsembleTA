@@ -23,18 +23,24 @@ def run_orchestration():
     for i, params in enumerate(parameter_combinations):
         print(f"\n--- Running combination {i+1}/{len(parameter_combinations)} ---")
         try:
+            # Define a unique report filename for this run
+            shifts_str = '_'.join(map(str, params['signal_shifts']))
+            report_filename = f"results/report_{params['asset'].replace('/', '_')}_{params['timeframe']}_{params['n_top_strategies']}_{shifts_str}.html"
+
             # Run the test for the current parameter set
             metrics = run_single_test(
                 asset=params['asset'],
                 timeframe=params['timeframe'],
                 n_top_strategies=params['n_top_strategies'],
-                signal_shifts=params['signal_shifts']
+                signal_shifts=params['signal_shifts'],
+                report_filename=report_filename
             )
 
             if metrics:
                 # Combine parameters and metrics into a single dictionary
                 result_row = params.copy()
                 result_row.update(metrics)
+                result_row['report_url'] = report_filename  # Add report URL for the dashboard
                 all_results.append(result_row)
             else:
                 print(f"Test failed for parameters: {params}")
@@ -61,21 +67,8 @@ def run_orchestration():
     results_df.to_csv(output_path, index=False)
 
     print("\n--- Orchestration Complete ---")
-    best_results = results_df.sort_values(by='Sharpe Ratio', ascending=False)
     print("Top 5 results based on Sharpe Ratio:")
-    print(best_results.head(5))
-
-    # --- Generate a detailed report for the best run ---
-    if not best_results.empty:
-        print("\n--- Generating detailed report for the best performing strategy ---")
-        best_params = best_results.iloc[0].to_dict()
-        run_single_test(
-            asset=best_params['asset'],
-            timeframe=best_params['timeframe'],
-            n_top_strategies=int(best_params['n_top_strategies']),
-            signal_shifts=best_params['signal_shifts'],
-            plot=True
-        )
+    print(results_df.sort_values(by='Sharpe Ratio', ascending=False).head(5))
 
 
 if __name__ == '__main__':
