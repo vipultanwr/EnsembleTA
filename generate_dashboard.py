@@ -34,17 +34,70 @@ def create_dashboard():
         <!-- DataTables CSS -->
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
         <style>
-            body {{ font-family: sans-serif; margin: 2em; }}
-            h1 {{ text-align: center; }}
-            table.dataTable tbody tr {{ cursor: pointer; }}
-            .dataTables_wrapper {{ margin-top: 2em; }}
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                background: #f6f8fa;
+                margin: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+            }}
+            .dashboard-container {{
+                width: 90%;
+                max-width: 1200px;
+                background: rgba(255, 255, 255, 0.7);
+                border-radius: 20px;
+                padding: 2em;
+                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+            }}
+            h1 {{
+                text-align: center;
+                font-size: 2.5em;
+                color: #333;
+                margin-bottom: 1em;
+            }}
+            table.dataTable {{
+                border-collapse: collapse !important;
+                width: 100%;
+                background-color: rgba(255, 255, 255, 0.85);
+                border-radius: 10px;
+                overflow: hidden;
+            }}
+            table.dataTable thead th {{
+                background-color: rgba(240, 240, 240, 0.8);
+                color: #333;
+                font-weight: 600;
+                border-bottom: 1px solid #ddd;
+            }}
+            table.dataTable tbody tr {{
+                cursor: pointer;
+                border-bottom: 1px solid #eee;
+            }}
+            table.dataTable tbody tr:hover {{
+                background-color: rgba(0, 0, 0, 0.05);
+            }}
+            table.dataTable tbody td {{
+                padding: 12px 15px;
+            }}
+            .dataTables_wrapper .dataTables_filter input,
+            .dataTables_wrapper .dataTables_length select {{
+                background-color: rgba(255, 255, 255, 0.9);
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                padding: 5px;
+            }}
         </style>
     </head>
     <body>
 
-        <h1>Ensemble Strategy Backtest Results</h1>
-
-        <table id="results-table" class="display" width="100%"></table>
+        <div class="dashboard-container">
+            <h1>Ensemble Strategy Backtest Results</h1>
+            <table id="results-table" class="display" style="width:100%"></table>
+        </div>
 
         <!-- jQuery and DataTables JS -->
         <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -58,18 +111,18 @@ def create_dashboard():
                 const table = $('#results-table').DataTable({{
                     data: data,
                     columns: [
-                        {{ title: "Asset", data: "asset" }},
-                        {{ title: "Timeframe", data: "timeframe" }},
-                        {{ title: "N Top Strategies", data: "n_top_strategies" }},
-                        {{ title: "Signal Shifts", data: "signal_shifts" }},
-                        {{ title: "Total Return", data: "Total Return" }},
-                        {{ title: "Annualized Return", data: "Annualized Return" }},
-                        {{ title: "Sharpe Ratio", data: "Sharpe Ratio" }},
-                        {{ title: "Max Drawdown", data: "Maximum Drawdown" }},
-                        {{ title: "Win Rate", data: "Win Rate" }},
-                        {{ title: "Profit Factor", data: "Profit Factor" }},
+                        {{ "title": "Asset", "data": "asset" }},
+                        {{ "title": "Timeframe", "data": "timeframe" }},
+                        {{ "title": "N Top Strategies", "data": "n_top_strategies" }},
+                        {{ "title": "Signal Shifts", "data": "signal_shifts" }},
+                        {{ "title": "Total Return", "data": "Total Return" }},
+                        {{ "title": "Annualized Return", "data": "Annualized Return" }},
+                        {{ "title": "Sharpe Ratio", "data": "Sharpe Ratio" }},
+                        {{ "title": "Max Drawdown", "data": "Maximum Drawdown" }},
+                        {{ "title": "Win Rate", "data": "Win Rate" }},
+                        {{ "title": "Profit Factor", "data": "Profit Factor" }},
                         // Hidden column for the report URL
-                        {{ title: "Report URL", data: "report_url", visible: false }}
+                        {{ "title": "Report URL", "data": "report_url", "visible": false }}
                     ],
                     // Add a click event to rows
                     "createdRow": function(row, data, dataIndex) {{
