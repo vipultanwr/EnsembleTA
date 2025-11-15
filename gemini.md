@@ -31,6 +31,9 @@ The workflow is divided into two distinct phases:
 *   **Custom Utilities:** The project relies on a custom library, `CoreQuantUtilities`, for core functionalities like the `StrategyBacktester` and the `getTACombinedSignals` function.
 *   **Evolution:** The project started with exploratory analysis in Jupyter Notebooks (`notebooks/`) and is now being refactored into a more structured and reusable format using Python scripts (`ensemble_backtest.py`, `config.py`, etc.).
 
+### Development Environment
+*   **Python Environment:** This project uses a `pyenv` virtual environment named `project1`. All Python commands should be executed within this environment.
+
 ---
 
 ### Development Log

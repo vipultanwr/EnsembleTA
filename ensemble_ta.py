@@ -4,8 +4,10 @@ import talib
 from talib import abstract
 from src.data_loader import load_crypto_data
 import sys
-from src.backtest_engine import StrategyBacktester
-from src.strategy import getTACombinedSignals
+# from src.backtest_engine import StrategyBacktester
+# from src.strategy import getTACombinedSignals
+from CoreQuantUtilities.ta_strategies.TABot import getTACombinedSignals
+from CoreQuantUtilities.backtester.backtester import StrategyBacktester
 from src.metrics import short_backtest
 
 # Import constants that will NOT be tuned
@@ -50,6 +52,11 @@ class EnsembleRanker:
                 # Forward strategy
                 sig = all_signals[strategy].shift(shift).fillna(0)
                 ret = returns
+
+                # Explicitly reindex sig to ret's index and then align
+                # This forces sig to have the same index as ret, handling potential subtle mismatches
+                sig_reindexed = sig.reindex(ret.index).fillna(0) # Fillna after reindex to handle new NaNs
+                
                 sig_aligned, ret_aligned = sig.align(ret, join='inner', axis=0)
                 pnl_fwd = sig_aligned * ret_aligned
                 stats_fwd = short_backtest(pnl_fwd, self.timeframe)

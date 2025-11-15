@@ -278,3 +278,27 @@ def getTACombinedSignals(input_df,returnall = False):
         return signals
     else:
         return signals.iloc[-1]
+
+def generate_ensemble_signal(strategy_signals: pd.DataFrame) -> pd.DataFrame:
+    """
+    Generates a combined signal based on the voting mechanism of multiple top strategies.
+
+    Args:
+        strategy_signals (pd.DataFrame): A DataFrame where each column represents a strategy
+                                         and contains its signals (1 for buy, -1 for sell, 0 for hold).
+
+    Returns:
+        pd.DataFrame: A DataFrame with a single column 'ensemble_signal' representing the
+                      aggregated signal based on majority vote.
+    """
+    if strategy_signals.empty:
+        return pd.DataFrame(index=strategy_signals.index, data={'ensemble_signal': []})
+
+    # Sum the signals for each timestamp
+    signal_sum = strategy_signals.sum(axis=1)
+
+    # Determine the ensemble signal based on majority vote
+    ensemble_signal = pd.DataFrame(index=strategy_signals.index)
+    ensemble_signal['ensemble_signal'] = np.where(signal_sum > 0, 1,
+                                                  np.where(signal_sum < 0, -1, 0))
+    return ensemble_signal
