@@ -1,6 +1,6 @@
-# Ensemble Trading Strategy Backtester
+# EnsembleTA
 
-This project implements and evaluates an ensemble trading strategy based on a large set of technical indicators from the TA-Lib library. The goal is to identify the best-performing indicators, combine them into a unified strategy, and validate its performance on out-of-sample cryptocurrency data.
+EnsembleTA implements and evaluates an ensemble trading strategy based on a large set of technical indicators from the TA-Lib library. The goal is to identify the best-performing indicators, combine them into a unified strategy, and validate its performance on out-of-sample cryptocurrency data.
 
 ## Project Overview
 
