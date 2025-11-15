@@ -14,22 +14,26 @@ The methodology is divided into two main phases:
 
 ```
 .
-├── config.py               # Main configuration file for parameters
-├── ensemble_backtest.py    # Main script to run the ranking and backtesting
+├── config.yaml             # Main configuration file for all parameters
+├── run_backtest.py         # Main script to run a single strategy backtest
+├── run_orchestrator.py     # Script to run multiple backtests for hyperparameter tuning
 ├── environment.yml         # Conda environment for reproducibility
 ├── requirements.txt        # Pip requirements for reproducibility
 ├── gemini.md               # Project development log and notes
 ├── data/
-│   └── sample_data.csv     # Sample data for testing purposes
+│   └── ...                 # Raw and processed data
 ├── notebooks/
 │   └── ...                 # Jupyter notebooks for exploration and analysis
 ├── src/
 │   ├── __init__.py
-│   ├── backtest_engine.py  # Backtesting engine using Backtrader
+│   ├── backtest_engine.py  # Backtesting engine
 │   ├── data_loader.py      # Data loading utility
 │   ├── metrics.py          # Performance metrics calculations
-│   └── strategy.py         # TA signal generation logic (includes `generate_ensemble_signal`)
-│   # Note: Core functionalities like StrategyBacktester and getTACombinedSignals are provided by the external `CoreQuantUtilities` library.
+│   └── utils.py            # Utility functions
+├── strategies/
+│   ├── __init__.py
+│   ├── ensemble_strategy.py # The original ensemble ranking and signal generation logic
+│   └── template_strategy.py # A template for creating new strategies
 └── tests/
     └── ...                 # Automated tests for the project
 ```
@@ -96,16 +100,41 @@ To set up the project, you can use either Conda, Pip, or Pyenv.
 
 ## How to Run
 
-Once the environment is set up and activated, you can run the full ranking and backtesting process with the following command:
+### Running a Single Backtest
+
+To run a backtest for a single strategy, use the `run_backtest.py` script. You need to specify the strategy you want to test.
 
 ```bash
-python ensemble_backtest.py
+python run_backtest.py --strategy template_strategy
 ```
 
-The script will:
-1.  Load data for the ranking period specified in `config.py`.
-2.  Generate and rank all technical analysis strategies.
-3.  Print the top-performing forward and reverse strategies.
-4.  Save the top strategies to `.pkl` files.
-5.  Run a final out-of-sample backtest using the ensemble of top strategies.
-6.  Print the final performance metrics and display a plot of the results.
+This will run the `template_strategy` using the default `config.yaml`.
+
+### Running the Orchestrator
+
+To run multiple backtests for hyperparameter tuning (as defined in `config.yaml`), use the `run_orchestrator.py` script.
+
+```bash
+python run_orchestrator.py
+```
+
+This will execute a backtest for each combination of parameters in the `param_grid` defined in `config.yaml`.
+
+## How to Add a New Strategy
+
+This framework is designed to be easily extensible. To add a new strategy:
+
+1.  **Copy the Template:**
+    Make a copy of `strategies/template_strategy.py` and rename it to `strategies/your_strategy_name.py`.
+
+2.  **Implement Your Logic:**
+    Open the new file and implement your custom logic within the `generate_signals` function. This function should take `data` (a pandas DataFrame with OHLC data) and `**params` as input, and return a pandas DataFrame with a single `signal` column containing your trading signals (-1 for sell, 0 for hold, 1 for buy).
+
+3.  **Configure Your Strategy (Optional):**
+    If your strategy has specific parameters, you can add them to `config.yaml` and access them within your `generate_signals` function via the `params` dictionary.
+
+4.  **Run Your Strategy:**
+    You can now run your new strategy using the `run_backtest.py` script:
+    ```bash
+    python run_backtest.py --strategy your_strategy_name
+    ```
