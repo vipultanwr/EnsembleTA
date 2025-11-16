@@ -13,4 +13,5 @@ dependencies = [
     "TA-Lib",
     "matplotlib",
     "CoreQuantUtilities @ git+https://github.com/vipultanwr/CoreQuantUtilities.git",
+    "IPython",
 ]

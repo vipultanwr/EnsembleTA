@@ -5,8 +5,10 @@ def create_dashboard():
     """
     Generates an interactive HTML dashboard from the master results CSV file.
     """
-    results_file = 'results/master_results.csv'
-    dashboard_file = 'results_dashboard.html'
+    # Build absolute paths from the project root
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    results_file = os.path.join(project_root, 'results', 'master_results.csv')
+    dashboard_file = os.path.join(project_root, 'results_dashboard.html')
 
     if not os.path.exists(results_file):
         print(f"Error: Results file not found at '{results_file}'.")

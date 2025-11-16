@@ -12,7 +12,13 @@ def run_orchestration():
     and saves them to a master CSV file.
     """
     # --- Load Configuration ---
-    with open('config.yaml', 'r') as f:
+    # Get the directory where the current script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Go up one level to the project root
+    project_root = os.path.abspath(os.path.join(script_dir, '..'))
+    config_path = os.path.join(project_root, 'config.yaml')
+
+    with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
     
     param_grid = config['param_grid']
@@ -27,7 +33,8 @@ def run_orchestration():
     # --- Loop through combinations and run tests ---
     for i, params in enumerate(parameter_combinations):
         print(f"\n--- Running combination {i+1}/{len(parameter_combinations)} ---")
-        temp_config_path = f"results/temp_config_{i}.yaml"
+        # Use the project_root to build the correct path
+        temp_config_path = os.path.join(project_root, 'results', f"temp_config_{i}.yaml")
         try:
             # For the orchestrator, we assume we are running the ensemble_strategy
             strategy_name = 'ensemble_strategy'
@@ -38,10 +45,14 @@ def run_orchestration():
             with open(temp_config_path, 'w') as f:
                 yaml.dump(run_config, f)
 
+            # Construct the absolute path to run_backtest.py
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            backtest_script_path = os.path.join(script_dir, 'run_backtest.py')
+
             # Call run_backtest.py as a subprocess
             command = [
                 sys.executable,
-                'run_backtest.py',
+                backtest_script_path,
                 '--strategy', strategy_name,
                 '--config', temp_config_path
             ]
@@ -85,7 +96,7 @@ def run_orchestration():
         metric_keys = [col for col in results_df.columns if col not in param_keys]
         results_df = results_df[param_keys + metric_keys]
         
-        output_path = 'results/master_results.csv'
+        output_path = os.path.join(project_root, 'results', 'master_results.csv')
         results_df.to_csv(output_path, index=False)
         print(f"\n--- Orchestration Complete ---")
         print(f"Master results saved to {output_path}")

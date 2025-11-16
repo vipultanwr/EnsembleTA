@@ -1,3 +1,11 @@
+---
+
+### Housekeeping TODO
+
+- [ ] **Consolidate Top-Level Scripts:** Move `run_*.py` and `generate_dashboard.py` into a new `scripts/` directory.
+- [ ] **Organize Documentation Assets:** Move `project_workflow.png` into a new `docs/images/` directory.
+- [ ] **Unify Source Code Layout:** Move the `strategies/` directory into `src/` and update imports.
+- [ ] **Clean Up Build Artifacts:** Remove `build/` and `*.egg-info/` directories and add them to `.gitignore`.
 ### Development Log
 
 *   **Dependency Management with `uv`:** Migrated the project's dependency management from a mixed `conda`/`pip` setup to `uv`. This modernizes the workflow, significantly improves installation speed, and ensures reproducibility. Introduced `pyproject.toml` for direct dependency management and updated `README.md` with the new setup instructions.

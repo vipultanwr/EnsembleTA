@@ -2,6 +2,13 @@ import argparse
 import yaml
 import importlib
 import sys
+import os
+
+# Add project root to the Python path to allow for absolute imports
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from src.data_loader import load_crypto_data
 from CoreQuantUtilities.backtester.backtester import StrategyBacktester
 from src.plotting import generate_quantstats_report
@@ -18,9 +25,9 @@ def run_backtest(strategy_name, config_path):
 
     # --- 2. Load Strategy ---
     try:
-        strategy_module = importlib.import_module(f"strategies.{strategy_name}")
+        strategy_module = importlib.import_module(f"src.strategies.{strategy_name}")
     except ImportError:
-        print(f"Error: Strategy '{strategy_name}' not found in the 'strategies' directory.", file=sys.stderr)
+        print(f"Error: Strategy '{strategy_name}' not found in 'src/strategies/'.", file=sys.stderr)
         return
 
     # --- 3. Load Data ---
@@ -51,7 +58,7 @@ def run_backtest(strategy_name, config_path):
     metrics = bt_backtester.calculate_metrics()
     
     # Generate and save the QuantStats report
-    report_filename = f"results/{strategy_name}_{asset.replace('/', '')}_{timeframe}.html"
+    report_filename = os.path.join(project_root, 'results', f"{strategy_name}_{asset.replace('/', '')}_{timeframe}.html")
     generate_quantstats_report(bt_backtester.results['returns'], title=f"{strategy_name} {asset} {timeframe}", output_filename=report_filename)
     
     # Add report URL to metrics and print as JSON for the orchestrator
