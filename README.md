@@ -40,65 +40,42 @@ The methodology is divided into two main phases:
 
 ## Setup and Installation
 
-To set up the project, you can use either Conda, Pip, or Pyenv.
+This project uses `uv` for dependency management and virtual environment creation, combined with `pyenv` for Python version management.
 
-### Using Conda (Recommended)
-
-1.  **Clone the repository:**
+1.  **Install `pyenv` and Python 3.12.1:**
+    If you don't have `pyenv` installed, follow its official installation guide. Then install Python 3.12.1:
     ```bash
-    git clone <repository-url>
-    cd <repository-name>
+    pyenv install 3.12.1
     ```
 
-2.  **Create the Conda environment:**
-    This command creates a new environment named `project1` with all the necessary dependencies.
+2.  **Install `uv`:**
     ```bash
-    conda env create -f environment.yml
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    # You may need to restart your terminal or source your shell's profile
     ```
 
-3.  **Activate the environment:**
+3.  **Set local Python version and create virtual environment:**
+    Navigate to the project root and set the local Python version. Then create the virtual environment using `uv`:
     ```bash
-    conda activate project1
+    pyenv local 3.12.1
+    uv venv
     ```
 
-### Using Pip
-
-1.  **Clone the repository and create a virtual environment:**
+4.  **Activate the virtual environment:**
     ```bash
-    git clone <repository-url>
-    cd <repository-name>
-    python -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+    source .venv/bin/activate
     ```
 
-2.  **Install the dependencies:**
+5.  **Install dependencies:**
+    With the virtual environment activated, install the project dependencies:
     ```bash
-    pip install -r requirements.txt
+    uv pip install .
     ```
-
-### Using Pyenv
-
-1.  **Ensure Pyenv is installed and set up:**
-    Follow the official pyenv installation guide if you haven't already.
-
-2.  **Install Python version (if not already installed):**
-    ```bash
-    pyenv install 3.12.1 # Or the desired Python version
-    ```
-
-3.  **Create and activate the virtual environment:**
-    ```bash
-    pyenv virtualenv 3.12.1 project1
-    pyenv activate project1
-    ```
-
-4.  **Install the dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    pip install git+https://github.com/vipultanwr/CoreQuantUtilities.git
-    ```
+    This will install all packages listed in `pyproject.toml`.
 
 ## How to Run
+
+Ensure your `uv` virtual environment is activated (`source .venv/bin/activate`) before running any commands.
 
 ### Running a Single Backtest
 

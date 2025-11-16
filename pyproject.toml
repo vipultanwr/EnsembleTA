@@ -1,0 +1,16 @@
+[project]
+name = "EnsembleTA"
+version = "0.1.0"
+description = "An ensemble trading strategy backtesting framework."
+requires-python = ">=3.12"
+
+dependencies = [
+    "pandas",
+    "numpy",
+    "fastquant",
+    "quantstats",
+    "PyYAML",
+    "TA-Lib",
+    "matplotlib",
+    "CoreQuantUtilities @ git+https://github.com/vipultanwr/CoreQuantUtilities.git",
+]
