@@ -3,6 +3,7 @@ import numpy as np
 from CoreQuantUtilities.ta_strategies.TABot import getTACombinedSignals
 from src.data_loader import load_crypto_data
 from src.metrics import short_backtest
+import sys
 
 class EnsembleRanker:
     """
@@ -25,14 +26,14 @@ class EnsembleRanker:
         """
         Generates and ranks all strategies across the entire dataset.
         """
-        print(f"Generating signals for {self.asset} ({self.timeframe})...")
+        print(f"Generating signals for {self.asset} ({self.timeframe})...", file=sys.stderr)
         all_signals = getTACombinedSignals(self.ranking_data, returnall=True)
         returns = self.ranking_data.close.pct_change().fillna(0)
 
         fwd_results = []
         rvs_results = []
 
-        print(f"Ranking {len(all_signals.columns)} strategies...")
+        print(f"Ranking {len(all_signals.columns)} strategies...", file=sys.stderr)
         for strategy in all_signals.columns:
             for shift in self.signal_shifts:
                 sig = all_signals[strategy].shift(shift).fillna(0)
@@ -51,7 +52,7 @@ class EnsembleRanker:
         df_fwd = pd.DataFrame(fwd_results).set_index(['strategy', 'shift'])
         df_rvs = pd.DataFrame(rvs_results).set_index(['strategy', 'shift'])
 
-        print("Strategy ranking generation complete.")
+        print("Strategy ranking generation complete.", file=sys.stderr)
         return df_fwd, df_rvs
 
 def generate_signals(data, **params):
@@ -79,16 +80,16 @@ def generate_signals(data, **params):
     top_fwd_strategies = df_fwd.sort_values(by='final_return', ascending=False).head(n_top_strategies)
     top_rvs_strategies = df_rvs.sort_values(by='final_return', ascending=False).head(n_top_strategies)
 
-    print(f"\n--- Top {n_top_strategies} Forward Strategies ---")
-    print(top_fwd_strategies)
-    print(f"\n--- Top {n_top_strategies} Reverse Strategies ---")
-    print(top_rvs_strategies)
+    print(f"\n--- Top {n_top_strategies} Forward Strategies ---", file=sys.stderr)
+    print(top_fwd_strategies, file=sys.stderr)
+    print(f"\n--- Top {n_top_strategies} Reverse Strategies ---", file=sys.stderr)
+    print(top_rvs_strategies, file=sys.stderr)
 
     # --- Step 3: Generate ensemble signal for the backtest period ---
-    print("Generating signals for backtest period...")
+    print("Generating signals for backtest period...", file=sys.stderr)
     backtest_signals = getTACombinedSignals(data, True)
 
-    print("Creating ensemble signal from top strategies...")
+    print("Creating ensemble signal from top strategies...", file=sys.stderr)
     ensemble_signal_series = pd.Series(0.0, index=backtest_signals.index)
 
     if not top_fwd_strategies.empty:

@@ -1,9 +1,12 @@
 import argparse
 import yaml
 import importlib
+import sys
 from src.data_loader import load_crypto_data
 from CoreQuantUtilities.backtester.backtester import StrategyBacktester
 from src.plotting import generate_quantstats_report
+
+import json
 
 def run_backtest(strategy_name, config_path):
     """
@@ -17,20 +20,19 @@ def run_backtest(strategy_name, config_path):
     try:
         strategy_module = importlib.import_module(f"strategies.{strategy_name}")
     except ImportError:
-        print(f"Error: Strategy '{strategy_name}' not found in the 'strategies' directory.")
+        print(f"Error: Strategy '{strategy_name}' not found in the 'strategies' directory.", file=sys.stderr)
         return
 
     # --- 3. Load Data ---
-    asset = config['param_grid']['asset'][0] # Use first asset for single run
-    timeframe = config['param_grid']['timeframe'][0] # Use first timeframe
+    asset = config['param_grid']['asset'] # Use first asset for single run
+    timeframe = config['param_grid']['timeframe'] # Use first timeframe
     backtest_start_date = config['backtest_start_date']
     backtest_end_date = config['backtest_end_date']
-    
     data = load_crypto_data(asset, backtest_start_date, backtest_end_date, timeframe)
     
     data.reset_index(inplace=True)
     data.rename(columns={'dt': 'date'}, inplace=True)
-    
+
     # --- 4. Generate Signals ---
     params = {**config, **config['param_grid']}
     signals_df = strategy_module.generate_signals(data, **params)
@@ -45,15 +47,16 @@ def run_backtest(strategy_name, config_path):
     
     bt_backtester.backtest(data, signal_col='signal')
 
-    # --- 6. Save Results ---
+    # --- 6. Save Results and Output JSON ---
     metrics = bt_backtester.calculate_metrics()
-    print("\n--- Backtest Results ---")
-    for key, value in metrics.items():
-        print(f"{key:<25}: {value}")
-
+    
+    # Generate and save the QuantStats report
     report_filename = f"results/{strategy_name}_{asset.replace('/', '')}_{timeframe}.html"
     generate_quantstats_report(bt_backtester.results['returns'], title=f"{strategy_name} {asset} {timeframe}", output_filename=report_filename)
-    print(f"\nQuantStats report saved to {report_filename}")
+    
+    # Add report URL to metrics and print as JSON for the orchestrator
+    metrics['report_url'] = report_filename
+    print(json.dumps(metrics))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run a single strategy backtest.')

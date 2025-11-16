@@ -1,3 +1,4 @@
+*   **Fix Orchestration Pipeline:** Repaired the entire orchestration and results aggregation pipeline. The orchestrator now correctly captures results from backtest subprocesses and generates the `master_results.csv` file. This involved a major refactoring to use a clean JSON data channel (`stdout`) while redirecting all logs to `stderr`. Fixed numerous cascading bugs, including `NameError`s, `JSONDecodeError`s, and hardcoded Python paths.
 ### Project Summary
 EnsembleTA transformed an initial set of exploratory scripts and notebooks into a professional, reproducible, and robust trading strategy backtesting framework. The development process followed a structured approach, beginning with a major refactoring effort to establish a clean and modular architecture.
 
@@ -62,4 +63,4 @@ The workflow is divided into two distinct phases:
     *   Metrics calculations (`short_backtest`, `get_annualization_factor`) moved to `src/metrics.py`.
 *   **Project Cleanup:** Moved all unused files and directories into a dedicated `unused_files` folder to declutter the project structure.
 *   **Git:** Created checkpoints for all major refactoring and structuring changes.
-*   **Configuration:** Added a comprehensive `.gitignore` file for Python projects and updated `config.py` to only contain fixed parameters.
+*   **Configuration:** Added a comprehensive `.gitignore` file for Python projects and updated `config.py` to only contain fixed parameters.\n*   **Execution Environment**: All Python commands must be executed within the `project1` pyenv virtual environment.
