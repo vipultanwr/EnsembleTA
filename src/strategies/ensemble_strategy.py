@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from CoreQuantUtilities.ta_strategies.TABot import getTACombinedSignals
-from src.data_loader import load_crypto_data
+from src.data_loader import load_data
 from src.metrics import short_backtest
 import sys
 
@@ -20,7 +20,7 @@ class EnsembleRanker:
 
     def _load_data(self):
         """Loads data for the entire ranking period at once."""
-        return load_crypto_data(self.asset, self.start_date, self.end_date, self.timeframe)
+        return load_data(self.asset, self.start_date, self.end_date, self.timeframe)
 
     def generate_rankings(self):
         """

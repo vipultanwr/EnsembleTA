@@ -4,12 +4,9 @@ import importlib
 import sys
 import os
 
-# Add project root to the Python path to allow for absolute imports
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+print(f"sys.path in run_backtest: {sys.path}", file=sys.stderr)
 
-from src.data_loader import load_crypto_data
+from src.data_loader import load_data
 from CoreQuantUtilities.backtester.backtester import StrategyBacktester
 from src.plotting import generate_quantstats_report
 
@@ -19,6 +16,10 @@ def run_backtest(strategy_name, config_path):
     """
     Runs a backtest for a single strategy.
     """
+    # Get project root (re-add this)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(script_dir, '..'))
+
     # --- 1. Load Configuration ---
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
@@ -27,18 +28,24 @@ def run_backtest(strategy_name, config_path):
     try:
         strategy_module = importlib.import_module(f"src.strategies.{strategy_name}")
     except ImportError:
-        print(f"Error: Strategy '{strategy_name}' not found in 'src/strategies/'.", file=sys.stderr)
-        return
+        print(f"CRITICAL: Failed to import strategy '{strategy_name}'. Check if the file exists at 'src/strategies/{strategy_name}.py' and that the project's src directory is on the python path.", file=sys.stderr)
+        sys.exit(1)
 
     # --- 3. Load Data ---
-    asset = config['param_grid']['asset'] # Use first asset for single run
-    timeframe = config['param_grid']['timeframe'] # Use first timeframe
+    asset = config['param_grid']['asset']
+    timeframe = config['param_grid']['timeframe']
     backtest_start_date = config['backtest_start_date']
     backtest_end_date = config['backtest_end_date']
-    data = load_crypto_data(asset, backtest_start_date, backtest_end_date, timeframe)
     
+    data = load_data(asset, backtest_start_date, backtest_end_date, timeframe)
+    
+    if data.empty:
+        print(f"CRITICAL: No data loaded for asset '{asset}'. Halting backtest.", file=sys.stderr)
+        sys.exit(1)
+
+    # Standardize index to 'date' column for the backtester
+    data.index.name = 'date'
     data.reset_index(inplace=True)
-    data.rename(columns={'dt': 'date'}, inplace=True)
 
     # --- 4. Generate Signals ---
     params = {**config, **config['param_grid']}
@@ -71,4 +78,10 @@ if __name__ == '__main__':
     parser.add_argument('--config', type=str, default='config.yaml', help='The path to the configuration file.')
     args = parser.parse_args()
 
-    run_backtest(args.strategy, args.config)
+    try:
+        run_backtest(args.strategy, args.config)
+    except Exception as e:
+        import traceback
+        print(f"An unhandled exception occurred in run_backtest: {e}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
+        sys.exit(1)

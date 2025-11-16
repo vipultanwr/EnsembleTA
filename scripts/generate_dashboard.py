@@ -8,7 +8,7 @@ def create_dashboard():
     # Build absolute paths from the project root
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     results_file = os.path.join(project_root, 'results', 'master_results.csv')
-    dashboard_file = os.path.join(project_root, 'results_dashboard.html')
+    dashboard_file = os.path.join(project_root, 'index.html')
 
     if not os.path.exists(results_file):
         print(f"Error: Results file not found at '{results_file}'.")

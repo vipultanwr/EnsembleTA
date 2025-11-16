@@ -49,6 +49,10 @@ def run_orchestration():
             script_dir = os.path.dirname(os.path.abspath(__file__))
             backtest_script_path = os.path.join(script_dir, 'run_backtest.py')
 
+            # Set the PYTHONPATH for the subprocess to find the 'src' module
+            env = os.environ.copy()
+            env['PYTHONPATH'] = project_root + os.pathsep + env.get('PYTHONPATH', '')
+
             # Call run_backtest.py as a subprocess
             command = [
                 sys.executable,
@@ -56,7 +60,7 @@ def run_orchestration():
                 '--strategy', strategy_name,
                 '--config', temp_config_path
             ]
-            process = subprocess.run(command, check=True, capture_output=True, text=True)
+            process = subprocess.run(command, check=True, capture_output=True, text=True, env=env)
 
             # Parse the JSON output from the subprocess
             result_metrics = json.loads(process.stdout)
