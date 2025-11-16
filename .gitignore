@@ -99,3 +99,4 @@ unused_files/
 # Generated artifacts
 results/
 unused_files/
+\n# Gemini session log\ngemini.md
