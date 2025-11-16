@@ -27,7 +27,10 @@ def run_backtest(strategy_name, config_path):
     backtest_end_date = config['backtest_end_date']
     
     data = load_crypto_data(asset, backtest_start_date, backtest_end_date, timeframe)
-
+    
+    data.reset_index(inplace=True)
+    data.rename(columns={'dt': 'date'}, inplace=True)
+    
     # --- 4. Generate Signals ---
     params = {**config, **config['param_grid']}
     signals_df = strategy_module.generate_signals(data, **params)
@@ -40,8 +43,6 @@ def run_backtest(strategy_name, config_path):
         initial_cash=config['initial_cash']
     )
     
-    data.reset_index(inplace=True)
-    data.rename(columns={'dt': 'date'}, inplace=True)
     bt_backtester.backtest(data, signal_col='signal')
 
     # --- 6. Save Results ---

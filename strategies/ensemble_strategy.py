@@ -91,13 +91,13 @@ def generate_signals(data, **params):
     print("Creating ensemble signal from top strategies...")
     ensemble_signal_series = pd.Series(0.0, index=backtest_signals.index)
 
-    if not top_fwd.empty:
-        for strat, shift in top_fwd.index:
+    if not top_fwd_strategies.empty:
+        for strat, shift in top_fwd_strategies.index:
             if strat in backtest_signals.columns:
                 ensemble_signal_series += backtest_signals[strat].shift(shift)
 
-    if not top_rvs.empty:
-        for strat, shift in top_rvs.index:
+    if not top_rvs_strategies.empty:
+        for strat, shift in top_rvs_strategies.index:
             if strat in backtest_signals.columns:
                 ensemble_signal_series += -1 * backtest_signals[strat].shift(shift)
 
