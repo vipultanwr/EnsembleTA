@@ -14,28 +14,29 @@ The methodology is divided into two main phases:
 
 ```
 .
+├── .venv/                  # Virtual environment created by uv
 ├── config.yaml             # Main configuration file for all parameters
-├── run_backtest.py         # Main script to run a single strategy backtest
-├── run_orchestrator.py     # Script to run multiple backtests for hyperparameter tuning
-├── environment.yml         # Conda environment for reproducibility
-├── requirements.txt        # Pip requirements for reproducibility
-├── gemini.md               # Project development log and notes
-├── data/
-│   └── ...                 # Raw and processed data
-├── notebooks/
-│   └── ...                 # Jupyter notebooks for exploration and analysis
+├── pyproject.toml          # Project definition and dependencies for uv
+├── requirements.txt        # Locked dependencies for reproducible installs
+├── scripts/
+│   ├── run_orchestrator.py # Main script to run multiple backtests
+│   ├── run_backtest.py     # Script to run a single backtest
+│   └── generate_dashboard.py # Script to create the HTML dashboard
 ├── src/
 │   ├── __init__.py
-│   ├── backtest_engine.py  # Backtesting engine
-│   ├── data_loader.py      # Data loading utility
-│   ├── metrics.py          # Performance metrics calculations
-│   └── utils.py            # Utility functions
-├── strategies/
-│   ├── __init__.py
-│   ├── ensemble_strategy.py # The original ensemble ranking and signal generation logic
-│   └── template_strategy.py # A template for creating new strategies
+│   ├── data_loader.py      # Multi-source data loading module
+│   ├── strategies/         # Strategy definitions
+│   │   └── ...
+│   └── ...
+├── data/
+│   └── ...                 # Raw and processed data
+├── docs/
+│   └── images/             # Documentation assets
+│       └── ...
+├── notebooks/
+│   └── ...                 # Jupyter notebooks for exploration
 └── tests/
-    └── ...                 # Automated tests for the project
+    └── ...                 # Automated tests
 ```
 
 ## Setup and Installation
@@ -77,32 +78,31 @@ This project uses `uv` for dependency management and virtual environment creatio
 
 Ensure your `uv` virtual environment is activated (`source .venv/bin/activate`) before running any commands.
 
-### Running a Single Backtest
-
-To run a backtest for a single strategy, use the `run_backtest.py` script. You need to specify the strategy you want to test.
-
-```bash
-python run_backtest.py --strategy template_strategy
-```
-
-This will run the `template_strategy` using the default `config.yaml`.
-
 ### Running the Orchestrator
 
 To run multiple backtests for hyperparameter tuning (as defined in `config.yaml`), use the `run_orchestrator.py` script.
 
 ```bash
-python run_orchestrator.py
+python scripts/run_orchestrator.py
 ```
 
-This will execute a backtest for each combination of parameters in the `param_grid` defined in `config.yaml`.
+This will execute a backtest for each combination of parameters in the `param_grid` defined in `config.yaml` and generate `results/master_results.csv`.
+
+### Generating the Dashboard
+
+After running the orchestrator, you can generate the interactive HTML dashboard.
+
+```bash
+python scripts/generate_dashboard.py
+```
+This will create an `index.html` file in your project root.
 
 ## How to Add a New Strategy
 
 This framework is designed to be easily extensible. To add a new strategy:
 
 1.  **Copy the Template:**
-    Make a copy of `strategies/template_strategy.py` and rename it to `strategies/your_strategy_name.py`.
+    Make a copy of `src/strategies/template_strategy.py` and rename it to `src/strategies/your_strategy_name.py`.
 
 2.  **Implement Your Logic:**
     Open the new file and implement your custom logic within the `generate_signals` function. This function should take `data` (a pandas DataFrame with OHLC data) and `**params` as input, and return a pandas DataFrame with a single `signal` column containing your trading signals (-1 for sell, 0 for hold, 1 for buy).
@@ -113,5 +113,5 @@ This framework is designed to be easily extensible. To add a new strategy:
 4.  **Run Your Strategy:**
     You can now run your new strategy using the `run_backtest.py` script:
     ```bash
-    python run_backtest.py --strategy your_strategy_name
+    python scripts/run_backtest.py --strategy your_strategy_name
     ```
