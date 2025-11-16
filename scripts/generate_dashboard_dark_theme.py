@@ -2,8 +2,6 @@ import pandas as pd
 import os
 import re
 
-#Created by Claude
-
 def extract_readme_sections():
     """
     Extracts key sections from README.md for display on the dashboard.
@@ -70,7 +68,8 @@ def create_dashboard():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>EnsembleTA Strategy</title>
+        <title>EnsembleTA Dashboard</title>
+        <!-- DataTables CSS -->
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
@@ -107,44 +106,82 @@ def create_dashboard():
                 margin: 0 auto;
             }}
             
-            /* --- REFINED GLASS CLASS --- */
             .glass {{
-                /* Lighter, cleaner background tint */
                 background: rgba(255, 255, 255, 0.15);
-                
-                /* KEY CHANGE: Added saturate(180%) to make colors pop */
-                backdrop-filter: blur(25px) saturate(180%);
-                -webkit-backdrop-filter: blur(25px) saturate(180%);
-                
+                backdrop-filter: blur(20px) saturate(180%);
+                -webkit-backdrop-filter: blur(20px) saturate(180%);
                 border-radius: 24px;
-                
-                /* Cleaner border */
-                border: 1px solid rgba(255, 255, 255, 0.25);
-                
-                /* Softer shadow + distinct inner highlight */
-                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15),
-                            inset 0 1px 1px 0 rgba(255, 255, 255, 0.6);
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2),
+                            inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
             }}
             
             .header {{
                 padding: 3rem 2.5rem;
                 margin-bottom: 2rem;
                 text-align: center;
+                position: relative;
+            }}
+            
+            .theme-toggle {{
+                position: absolute;
+                top: 2rem;
+                right: 2rem;
+                width: 60px;
+                height: 32px;
+                background: rgba(255, 255, 255, 0.3);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-radius: 16px;
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                padding: 0 4px;
+                box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            }}
+            
+            .theme-toggle-slider {{
+                width: 24px;
+                height: 24px;
+                background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+                border-radius: 50%;
+                transition: transform 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.75rem;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }}
+            
+            .theme-toggle.dark .theme-toggle-slider {{
+                transform: translateX(28px);
             }}
             
             h1 {{
                 font-size: 3.5rem;
                 font-weight: 700;
-                color: #ffffff;
+                color: #1d1d1f;
                 margin-bottom: 0.5rem;
-                text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
                 letter-spacing: -0.02em;
+                transition: color 0.3s ease;
+            }}
+            
+            body.dark-mode h1 {{
+                color: #f5f5f7;
             }}
             
             .subtitle {{
                 font-size: 1.1rem;
-                color: rgba(255, 255, 255, 0.9);
+                color: #6e6e73;
                 font-weight: 400;
+                transition: color 0.3s ease;
+            }}
+            
+            body.dark-mode .subtitle {{
+                color: #a1a1a6;
             }}
             
             .info-grid {{
@@ -161,38 +198,57 @@ def create_dashboard():
             
             .info-card:hover {{
                 transform: translateY(-5px);
-                box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.15),
-                            inset 0 1px 1px 0 rgba(255, 255, 255, 0.7);
+                box-shadow: 
+                    0 12px 48px 0 rgba(31, 38, 135, 0.2),
+                    0 4px 16px 0 rgba(31, 38, 135, 0.15),
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+                    inset 0 1px 0 0 rgba(255, 255, 255, 1);
             }}
             
             .info-card h2 {{
                 font-size: 1.5rem;
                 font-weight: 600;
-                color: #ffffff;
+                color: #1d1d1f;
                 margin-bottom: 1rem;
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
+                transition: color 0.3s ease;
+            }}
+            
+            body.dark-mode .info-card h2 {{
+                color: #f5f5f7;
             }}
             
             .info-card .icon {{
                 width: 32px;
                 height: 32px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
                 border-radius: 8px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-size: 1.2rem;
+                border: 1px solid rgba(102, 126, 234, 0.3);
+                transition: all 0.3s ease;
             }}
             
-            /* Info cards keep the light text, as it's sparse and legible */
+            body.dark-mode .info-card .icon {{
+                background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+                border: 1px solid rgba(102, 126, 234, 0.4);
+            }}
+            
             .info-card p, .info-card ul {{
-                color: rgba(255, 255, 255, 0.95);
+                color: #1d1d1f;
                 line-height: 1.8;
                 font-size: 1rem;
                 font-weight: 400;
-                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                transition: color 0.3s ease;
+            }}
+            
+            body.dark-mode .info-card p,
+            body.dark-mode .info-card ul {{
+                color: #f5f5f7;
             }}
             
             .info-card ul {{
@@ -204,22 +260,32 @@ def create_dashboard():
                 margin-bottom: 1.2rem;
                 padding-left: 1.8rem;
                 position: relative;
-                color: rgba(255, 255, 255, 0.95);
+                color: #1d1d1f;
+                transition: color 0.3s ease;
+            }}
+            
+            body.dark-mode .info-card li {{
+                color: #f5f5f7;
             }}
             
             .info-card li::before {{
                 content: "→";
                 position: absolute;
                 left: 0;
-                color: #ffffff;
+                color: #667eea;
                 font-weight: 700;
                 font-size: 1.2rem;
             }}
             
             .info-card strong {{
-                color: #ffffff;
+                color: #1d1d1f;
                 font-weight: 600;
                 font-size: 1.05rem;
+                transition: color 0.3s ease;
+            }}
+            
+            body.dark-mode .info-card strong {{
+                color: #f5f5f7;
             }}
             
             .results-section {{
@@ -230,17 +296,32 @@ def create_dashboard():
             .results-section h2 {{
                 font-size: 2rem;
                 font-weight: 600;
-                color: #ffffff;
+                color: #1d1d1f;
                 margin-bottom: 1.5rem;
                 text-align: center;
-                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+                transition: color 0.3s ease;
+            }}
+            
+            body.dark-mode .results-section h2 {{
+                color: #f5f5f7;
             }}
             
             .table-wrapper {{
-                background: transparent; /* Let the parent glass show through */
+                background: rgba(255, 255, 255, 0.5);
+                backdrop-filter: blur(20px) saturate(180%);
+                -webkit-backdrop-filter: blur(20px) saturate(180%);
                 border-radius: 16px;
                 padding: 1.5rem;
                 overflow: hidden;
+                border: 1px solid rgba(255, 255, 255, 0.6);
+                box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+                transition: all 0.3s ease;
+            }}
+            
+            body.dark-mode .table-wrapper {{
+                background: rgba(30, 30, 30, 0.5);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
             }}
             
             table.dataTable {{
@@ -262,36 +343,27 @@ def create_dashboard():
             
             table.dataTable tbody tr {{
                 cursor: pointer;
-                /* Darker border for better contrast on light blur */
-                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
                 transition: all 0.2s ease;
             }}
             
             table.dataTable tbody tr:hover {{
-                /* Lighter background hover */
-                background: rgba(255, 255, 255, 0.2);
+                background: linear-gradient(90deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
                 transform: scale(1.01);
             }}
             
-            /* --- KEY LEGIBILITY FIX: DARK TABLE TEXT --- */
             table.dataTable tbody td {{
                 padding: 1rem;
-                color: #222222; /* High-contrast dark text */
+                color: #1a1a1a;
                 font-size: 0.9rem;
                 font-weight: 500;
-                text-shadow: none; /* Remove shadow */
+                transition: color 0.3s ease;
             }}
             
-            /* --- KEY LEGIBILITY FIX: DARK CONTROLS --- */
-            
-            /* "Search" and "Show" labels */
-            .dataTables_wrapper .dataTables_filter label,
-            .dataTables_wrapper .dataTables_length label {{
-                color: #333333; /* Dark text */
-                font-weight: 500;
-                text-shadow: none; /* Remove shadow */
+            body.dark-mode table.dataTable tbody td {{
+                color: #f5f5f7;
             }}
-
+            
             .dataTables_wrapper .dataTables_filter input {{
                 background-color: rgba(255, 255, 255, 0.9);
                 border: 2px solid rgba(102, 126, 234, 0.3);
@@ -299,7 +371,13 @@ def create_dashboard():
                 padding: 0.6rem 1rem;
                 font-size: 0.9rem;
                 transition: all 0.3s ease;
-                color: #1a1a1a; /* Keep input text dark */
+                color: #1a1a1a;
+            }}
+            
+            body.dark-mode .dataTables_wrapper .dataTables_filter input {{
+                background-color: rgba(50, 50, 50, 0.8);
+                border: 2px solid rgba(102, 126, 234, 0.4);
+                color: #f5f5f7;
             }}
             
             .dataTables_wrapper .dataTables_filter input:focus {{
@@ -315,16 +393,27 @@ def create_dashboard():
                 padding: 0.5rem 2rem 0.5rem 0.8rem;
                 font-size: 0.9rem;
                 cursor: pointer;
-                color: #1a1a1a; /* Keep select text dark */
+                transition: all 0.3s ease;
+                color: #1a1a1a;
             }}
             
-            /* "Showing 1 of..." and Pagination text */
+            body.dark-mode .dataTables_wrapper .dataTables_length select {{
+                background-color: rgba(50, 50, 50, 0.8);
+                border: 2px solid rgba(102, 126, 234, 0.4);
+                color: #f5f5f7;
+            }}
+            
             .dataTables_wrapper .dataTables_info,
             .dataTables_wrapper .dataTables_paginate {{
-                color: #333333; /* Dark text */
+                color: #1a1a1a;
                 margin-top: 1rem;
                 font-weight: 500;
-                text-shadow: none; /* Remove shadow */
+                transition: color 0.3s ease;
+            }}
+            
+            body.dark-mode .dataTables_wrapper .dataTables_info,
+            body.dark-mode .dataTables_wrapper .dataTables_paginate {{
+                color: #f5f5f7;
             }}
             
             .dataTables_wrapper .dataTables_paginate .paginate_button {{
@@ -385,11 +474,16 @@ def create_dashboard():
     </head>
     <body>
         <div class="container">
+            <!-- Header -->
             <div class="glass header">
+                <div class="theme-toggle" id="themeToggle">
+                    <div class="theme-toggle-slider">☀️</div>
+                </div>
                 <h1>📊 EnsembleTA Dashboard</h1>
                 <p class="subtitle">Advanced Technical Analysis Ensemble Strategy Performance</p>
             </div>
             
+            <!-- Info Cards -->
             <div class="info-grid">
                 <div class="glass info-card">
                     <h2><span class="icon">🎯</span> Strategy Overview</h2>
@@ -415,6 +509,7 @@ def create_dashboard():
                 </div>
             </div>
             
+            <!-- Results Table -->
             <div class="glass results-section">
                 <h2>📈 Backtest Results</h2>
                 <div class="table-wrapper">
@@ -423,12 +518,39 @@ def create_dashboard():
             </div>
         </div>
 
-        <script type(text/javascript) charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script type(text/javascript) charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+        <!-- jQuery and DataTables JS -->
+        <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 
         <script>
             // Embed the data from the pandas DataFrame
             const data = {data_json};
+            
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const themeSlider = themeToggle.querySelector('.theme-toggle-slider');
+            const body = document.body;
+            
+            // Check for saved theme preference or default to light mode
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            if (currentTheme === 'dark') {{
+                body.classList.add('dark-mode');
+                themeToggle.classList.add('dark');
+                themeSlider.textContent = '🌙';
+            }}
+            
+            themeToggle.addEventListener('click', function() {{
+                body.classList.toggle('dark-mode');
+                themeToggle.classList.toggle('dark');
+                
+                if (body.classList.contains('dark-mode')) {{
+                    themeSlider.textContent = '🌙';
+                    localStorage.setItem('theme', 'dark');
+                }} else {{
+                    themeSlider.textContent = '☀️';
+                    localStorage.setItem('theme', 'light');
+                }}
+            }});
 
             $(document).ready(function() {{
                 const table = $('#results-table').DataTable({{
@@ -464,7 +586,7 @@ def create_dashboard():
     """
 
     print(f"Generating dashboard HTML file: '{dashboard_file}'...")
-    with open(dashboard_file, 'w', encoding='utf-8') as f:
+    with open(dashboard_file, 'w') as f:
         f.write(html_template)
     print("Dashboard generated successfully.")
     print(f"Open '{dashboard_file}' in your browser to view the dashboard.")
