@@ -3,12 +3,13 @@ import yaml
 import importlib
 import sys
 import os
+import pandas as pd
 
 print(f"sys.path in run_backtest: {sys.path}", file=sys.stderr)
 
 from src.data_loader import load_data
 from CoreQuantUtilities.backtester.backtester import StrategyBacktester
-from src.plotting import generate_quantstats_report
+from src.plotting import generate_curated_report
 
 import json
 
@@ -43,6 +44,9 @@ def run_backtest(strategy_name, config_path):
         print(f"CRITICAL: No data loaded for asset '{asset}'. Halting backtest.", file=sys.stderr)
         sys.exit(1)
 
+    # Calculate benchmark returns BEFORE resetting the index
+    benchmark_returns = data['close'].pct_change()
+
     # Standardize index to 'date' column for the backtester
     data.index.name = 'date'
     data.reset_index(inplace=True)
@@ -64,9 +68,51 @@ def run_backtest(strategy_name, config_path):
     # --- 6. Save Results and Output JSON ---
     metrics = bt_backtester.calculate_metrics()
     
-    # Generate and save the QuantStats report
-    report_filename = os.path.join(project_root, 'results', f"{strategy_name}_{asset.replace('/', '')}_{timeframe}.html")
-    generate_quantstats_report(bt_backtester.results['returns'], title=f"{strategy_name} {asset} {timeframe}", output_filename=report_filename)
+    # --- Data Alignment for Plotting ---
+    # The backtester operates on a RangeIndex, so we need to align the results
+    # back to a DatetimeIndex for correct plotting.
+    
+    # Get the original DatetimeIndex from the data *before* it was reset
+    datetime_index = pd.to_datetime(data['date']).dt.tz_localize('UTC')
+    
+    # Align strategy returns
+    # The returns series from the backtester is already aligned with the original data's length
+    strategy_returns = bt_backtester.results['returns']
+    strategy_returns.index = datetime_index
+    
+    # Align benchmark returns
+    benchmark_returns.index = datetime_index
+    
+    # Align trades
+    # The trades index from the backtester is already UTC timezone-aware
+    trades_df = bt_backtester.trades
+    trades_df.index = pd.to_datetime(trades_df.index)
+    
+    # --- Create a unique filename for the report ---
+    n_top = config['param_grid']['n_top_strategies']
+    shifts = config['param_grid']['signal_shifts']
+    # Create a filename-safe string for the shifts list, e.g., [1, 2, 3] -> "1_2_3"
+    shifts_str = '_'.join(map(str, shifts))
+    
+    # Sanitize asset name for filename
+    asset_str = asset.replace('/', '')
+
+    report_filename = os.path.join(
+        project_root, 
+        'results', 
+        f"{strategy_name}_{asset_str}_{timeframe}_top{n_top}_shifts{shifts_str}.html"
+    )
+
+    # Generate and save the curated report
+    generate_curated_report(
+        returns=strategy_returns,
+        benchmark_returns=benchmark_returns,
+        trades=trades_df,
+        metrics=metrics,
+        title=f"{strategy_name} {asset} {timeframe} (Top {n_top}, Shifts {shifts})",
+        output_filename=report_filename
+    )
+
     
     # Add report URL to metrics and print as JSON for the orchestrator
     metrics['report_url'] = report_filename
