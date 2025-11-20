@@ -1,0 +1,21 @@
+# --- Fixed Date Parameters ---
+ranking_start_date: '2023-01-01'
+ranking_end_date: '2023-06-30'
+backtest_start_date: '2023-07-01'
+backtest_end_date: '2023-12-31'
+
+# --- Fixed Backtesting Parameters ---
+initial_cash: 100000.0
+commission_pct: 0.001
+slippage_pct: 0.0005
+
+# --- Tunable Parameters (Hyperparameters for Orchestration) ---
+param_grid:
+  asset:
+    - 'CL=F'       # Oil (Crude Oil Futures)
+  timeframe:
+    - '1wk'
+  n_top_strategies:
+    - 3
+  signal_shifts:
+    - [0]

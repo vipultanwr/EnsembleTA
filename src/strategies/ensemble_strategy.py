@@ -26,6 +26,10 @@ class EnsembleRanker:
         """
         Generates and ranks all strategies across the entire dataset.
         """
+        if self.ranking_data.empty:
+            print(f"WARNING: No data loaded for {self.asset} ({self.timeframe}) in ranking period. Skipping ranking.", file=sys.stderr)
+            return pd.DataFrame(), pd.DataFrame()
+
         print(f"Generating signals for {self.asset} ({self.timeframe})...", file=sys.stderr)
         all_signals = getTACombinedSignals(self.ranking_data, returnall=True)
         returns = self.ranking_data.close.pct_change().fillna(0)
@@ -75,6 +79,11 @@ def generate_signals(data, **params):
         signal_shifts=signal_shifts
     )
     df_fwd, df_rvs = ranker.generate_rankings()
+
+    # If ranking fails (e.g., no data), return an empty signal DataFrame
+    if df_fwd.empty or df_rvs.empty:
+        print("WARNING: Ranking returned empty dataframes. No trades will be generated.", file=sys.stderr)
+        return pd.DataFrame({'signal': pd.Series(0.0, index=data.index)})
 
     # --- Step 2: Select top strategies based on a metric ---
     top_fwd_strategies = df_fwd.sort_values(by='final_return', ascending=False).head(n_top_strategies)

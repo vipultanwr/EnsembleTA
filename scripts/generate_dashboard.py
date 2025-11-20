@@ -1,6 +1,8 @@
 import pandas as pd
 import os
 import re
+import argparse
+import yaml
 
 #Created by Claude
 
@@ -36,22 +38,40 @@ def extract_readme_sections():
     
     return sections
 
-def create_dashboard():
+def create_dashboard(results_path, output_path, config_path):
     """
     Generates an interactive HTML dashboard from the master results CSV file.
     """
-    # Build absolute paths from the project root
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    results_file = os.path.join(project_root, 'results', 'master_results.csv')
-    dashboard_file = os.path.join(project_root, 'index.html')
-
-    if not os.path.exists(results_file):
-        print(f"Error: Results file not found at '{results_file}'.")
+    if not os.path.exists(results_path):
+        print(f"Error: Results file not found at '{results_path}'.")
         print("Please run 'run_orchestrator.py' first to generate results.")
         return
 
-    print(f"Reading results from '{results_file}'...")
-    df = pd.read_csv(results_file)
+    print(f"Reading results from '{results_path}'...")
+    df = pd.read_csv(results_path)
+
+    # --- Read Config Parameters ---
+    config_params_html = "<h3>Parameters from config file could not be loaded.</h3>"
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+        
+        # Format fixed parameters
+        fixed_params = {k: v for k, v in config.items() if k != 'param_grid'}
+        config_params_html = "<h4>Fixed Parameters</h4><ul>"
+        for key, value in fixed_params.items():
+            config_params_html += f"<li><strong>{key.replace('_', ' ').title()}:</strong> {value}</li>"
+        config_params_html += "</ul>"
+
+        # Format tunable parameters (param_grid)
+        param_grid = config.get('param_grid', {})
+        config_params_html += "<h4>Tunable Parameters (Hyperparameter Grid)</h4><ul>"
+        for key, value in param_grid.items():
+            config_params_html += f"<li><strong>{key.replace('_', ' ').title()}:</strong> {', '.join(map(str, value))}</li>"
+        config_params_html += "</ul>"
+    else:
+        print(f"Warning: Config file not found at '{config_path}'. Parameter section will not be populated.")
+
 
     # Convert float columns to a more readable format
     for col in ['Sharpe Ratio', 'Profit Factor', 'Average Win', 'Average Loss']:
@@ -403,15 +423,10 @@ def create_dashboard():
                         <li><strong>Ensemble Backtesting (Out-of-Sample):</strong> Top-ranked strategies are combined using a voting system. The ensemble is then rigorously backtested on unseen data to validate effectiveness and robustness.</li>
                     </ul>
                 </div>
-                
+
                 <div class="glass info-card">
-                    <h2><span class="icon">💡</span> Key Features</h2>
-                    <ul>
-                        <li><strong>Multi-Strategy Ensemble:</strong> Combines signals from multiple technical indicators for robust decision-making</li>
-                        <li><strong>Rigorous Validation:</strong> Separate in-sample and out-of-sample testing periods ensure strategy robustness</li>
-                        <li><strong>Flexible Architecture:</strong> Easily extensible framework for adding new strategies</li>
-                        <li><strong>Comprehensive Metrics:</strong> Tracks Sharpe ratio, profit factor, win rate, and drawdown metrics</li>
-                    </ul>
+                    <h2><span class="icon">⚙️</span> Backtest Parameters</h2>
+                    <div>{config_params_html}</div>
                 </div>
             </div>
             
@@ -420,6 +435,59 @@ def create_dashboard():
                 <div class="table-wrapper">
                     <table id="results-table" class="display" style="width:100%"></table>
                 </div>
+            </div>
+
+            <div class="glass results-section">
+                <h2>📝 Project Report</h2>
+                <h3>Project Report: Performance Analysis of the EnsembleTA Trading Strategy</h3>
+                <p><strong>Date:</strong> November 20, 2025</p>
+                <p><strong>Author:</strong> Gemini AI Agent</p>
+                <h4>1.0 Executive Summary</h4>
+                <p>This report details the performance of the EnsembleTA trading strategy following a comprehensive backtesting process across a diverse range of asset classes and timeframes. Despite extensive testing and debugging of the backtesting engine, the results conclusively demonstrate that the current strategy is not profitable and carries a high risk of significant capital loss. Out of 450 unique backtests, only a single combination showed a positive return, which is statistically insignificant and likely attributable to random chance rather than a robust strategic edge. The consistent negative performance across all other tests points to fundamental flaws in the strategy's design, specifically in its signal generation and risk management protocols. Immediate and substantial redevelopment of the core strategy is recommended before any further testing or consideration of live deployment.</p>
+                <h4>2.0 Backtesting Methodology</h4>
+                <p>To evaluate the strategy's effectiveness, a series of backtests were conducted using the orchestration script (<code>run_orchestrator.py</code>) and a diverse configuration (<code>config_diverse_assets.yaml</code>).</p>
+                <ul>
+                    <li><strong>Asset Classes:</strong> Cryptocurrencies (BTC/USDT, ETH/USDT), US Stocks (AAPL, GOOG), Indian Stocks (RELIANCE.NS, TCS.NS), Forex (EURUSD=X, GBPJPY=X), and Commodities (GC=F, SI=F).</li>
+                    <li><strong>Timeframes:</strong> Daily (1d), Weekly (1wk), and Monthly (1mo).</li>
+                    <li><strong>Hyperparameters:</strong>
+                        <ul>
+                            <li><code>n_top_strategies</code>: 3, 5, 7</li>
+                            <li><code>signal_shifts</code>: [0], [1], [2], [0, 1], [0, 1, 2]</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p>A total of 450 unique combinations were tested, with detailed performance metrics and equity curves generated for each run. Initial runs were plagued by runtime errors related to data fetching and processing, which were systematically debugged and resolved. The final, complete backtest provides the basis for this report.</p>
+                <h4>3.0 Performance Analysis</h4>
+                <p>The results of the backtesting, as aggregated in <code>master_results.csv</code> and detailed in individual HTML reports, are overwhelmingly negative.</p>
+                <ul>
+                    <li><strong>Overall Profitability:</strong> The vast majority of tests resulted in significant losses, with total returns frequently falling between -50% and -90%. The Sharpe Ratios, a measure of risk-adjusted return, were consistently negative, indicating that the strategies failed to generate returns sufficient to justify the risks taken.</li>
+                    <li><strong>Positive Outlier:</strong> A single test combination showed a positive return:
+                        <ul>
+                            <li><strong>Asset:</strong> GOOG</li>
+                            <li><strong>Timeframe:</strong> 1wk</li>
+                            <li><strong>Parameters:</strong> <code>n_top_strategies</code>=5, <code>signal_shifts</code>=[2]</li>
+                            <li><strong>Sharpe Ratio:</strong> 1.15</li>
+                            <li><strong>Total Return:</strong> 5.13%</li>
+                        </ul>
+                        While positive, this result is statistically insignificant when viewed in the context of 449 failed tests. Further analysis of the corresponding HTML report revealed that this profit was the result of a single, long-held trade. This suggests a lucky entry rather than a repeatable strategic edge.
+                    </li>
+                    <li><strong>Consistent Failure Across Asset Classes:</strong> The strategy's failure was not isolated to any single market. It performed poorly across cryptocurrencies, US and Indian equities, forex, and commodities, indicating the underlying logic is not adapted to any specific market behavior.</li>
+                    <li><strong>Low Win Rates:</strong> The <code>Win Rate</code> for most tests was below 20%, a clear indicator of a failing strategy. Without a reasonable probability of winning trades, long-term profitability is impossible.</li>
+                </ul>
+                <h4>4.0 Root Cause of Failure</h4>
+                <p>The investigation into the strategy's poor performance points to two critical flaws in the design:</p>
+                <ol>
+                    <li><strong>Lack of Effective Signal Generation:</strong> The strategy relies on an ensemble of over 100 technical indicators, each with hardcoded, generic thresholds. This "one-size-fits-all" approach fails to adapt to the unique characteristics of different assets and market conditions. The "voting" mechanism, which aggregates these weak signals, results in a final signal with no discernible predictive power.</li>
+                    <li><strong>Absence of Risk Management:</strong> The backtesting engine (<code>backtester.py</code>) and the strategy itself lack any form of risk management. There are no stop-loss orders to cap losses on individual trades, nor are there take-profit orders to secure gains. This means that a few losing trades can, and did, wipe out any small profits and lead to catastrophic drawdowns.</li>
+                </ol>
+                <h4>5.0 Recommendations</h4>
+                <p>Based on this analysis, the EnsembleTA strategy in its current form is not viable. The following recommendations are made for future development:</p>
+                <ol>
+                    <li><strong>Abandon the Current Ensemble Method:</strong> The "more is better" approach to indicators has proven ineffective. It is recommended to pivot to a strategy based on a small number of well-understood, configurable indicators (e.g., RSI, MACD, Bollinger Bands).</li>
+                    <li><strong>Prioritize Risk Management:</strong> Immediately implement stop-loss and take-profit functionality within the backtesting engine. This is a non-negotiable feature of any trading strategy and is essential to preserve capital. It is recommended to add <code>stop_loss_pct</code> and <code>take_profit_pct</code> as tunable hyperparameters in the configuration.</li>
+                    <li><strong>Adopt a "Simple First" Development Approach:</strong> Begin with a simple, classic strategy, such as a moving average crossover, and ensure it can be backtested and optimized correctly. Once a baseline is established, complexity can be gradually added.</li>
+                    <li><strong>Further Investigation of the GOOG Outlier (with caution):</strong> The single profitable test case for GOOG should be examined as a learning opportunity, but not as a sign of a successful strategy. It may provide insight into which <em>type</em> of indicator (if any) showed promise on that specific asset and timeframe. This investigation should be secondary to the redevelopment of the core strategy.</li>
+                </ol>
             </div>
         </div>
 
@@ -463,11 +531,20 @@ def create_dashboard():
     </html>
     """
 
-    print(f"Generating dashboard HTML file: '{dashboard_file}'...")
-    with open(dashboard_file, 'w', encoding='utf-8') as f:
+    print(f"Generating dashboard HTML file: '{output_path}'...")
+    with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_template)
     print("Dashboard generated successfully.")
-    print(f"Open '{dashboard_file}' in your browser to view the dashboard.")
+    print(f"Open '{output_path}' in your browser to view the dashboard.")
 
 if __name__ == '__main__':
-    create_dashboard()
+    parser = argparse.ArgumentParser(description='Generate a dashboard from backtest results.')
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    parser.add_argument('--results', type=str, default=os.path.join(project_root, 'results', 'master_results.csv'),
+                        help='Path to the master results CSV file.')
+    parser.add_argument('--output', type=str, default=os.path.join(project_root, 'index.html'),
+                        help='Path to the output HTML dashboard file.')
+    parser.add_argument('--config', type=str, default=os.path.join(project_root, 'config_diverse_assets.yaml'),
+                        help='Path to the config file.')
+    args = parser.parse_args()
+    create_dashboard(args.results, args.output, args.config)

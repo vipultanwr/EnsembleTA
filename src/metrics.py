@@ -2,18 +2,26 @@ import numpy as np
 
 def get_annualization_factor(timeframe):
     """Calculates the annualization factor based on the timeframe."""
-    if 'm' in timeframe:
+    if timeframe.endswith('m') and len(timeframe) > 1: # Handle minutes (e.g., '5m', '30m')
         minutes = int(timeframe.replace('m', ''))
-        return (60 / minutes) * 24 * 365.25
-    elif 'h' in timeframe:
+        # Assuming 252 trading days/year, 6.5 trading hours/day
+        return (60 / minutes) * 6.5 * 252
+    elif timeframe.endswith('h'): # Handle hours (e.g., '1h', '4h')
         hours = int(timeframe.replace('h', ''))
-        return (24 / hours) * 365.25
-    elif 'd' in timeframe:
+        # Assuming 252 trading days/year, 6.5 trading hours/day
+        return (6.5 / hours) * 252
+    elif timeframe.endswith('d'): # Handle days (e.g., '1d', '5d')
         days = int(timeframe.replace('d', ''))
-        return 365.25 / days
+        return 252 / days # 252 trading days in a year
+    elif timeframe.endswith('wk'): # Handle weeks (e.g., '1wk')
+        weeks = int(timeframe.replace('wk', ''))
+        return 52 / weeks # 52 weeks in a year
+    elif timeframe.endswith('mo'): # Handle months (e.g., '1mo')
+        months = int(timeframe.replace('mo', ''))
+        return 12 / months # 12 months in a year
     else:
-        # Default to daily if not specified
-        return 365.25
+        raise ValueError(f"Unsupported timeframe format for annualization: {timeframe}. "
+                         "Supported formats: Xm, Xh, Xd, Xwk, Xmo (e.g., '5m', '1h', '1d', '1wk', '1mo')")
 
 def short_backtest(pnl_returns, timeframe):
     """A simplified, vectorized backtest to quickly rank strategies."""

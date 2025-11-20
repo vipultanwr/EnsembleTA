@@ -11,9 +11,9 @@ def _load_yfinance_data(asset, start_date, end_date, timeframe):
     """
     print(f"Loading data for {asset} from yfinance...", file=sys.stderr)
     
-    # Convert asset format for yfinance if it's a crypto pair
     yfinance_asset = asset
-    if '/' in asset:
+    # Only convert crypto-style tickers, and avoid touching already-formatted tickers
+    if '/' in asset and '=' not in asset:
         yfinance_asset = asset.replace('/', '-')
         if 'USDT' in yfinance_asset:
             yfinance_asset = yfinance_asset.replace('USDT', 'USD')
@@ -48,6 +48,12 @@ def _load_yfinance_data(asset, start_date, end_date, timeframe):
         
         # Ensure index is timezone-naive datetime
         df.index = pd.to_datetime(df.index).tz_localize(None)
+
+        # --- Validation Step ---
+        required_cols = ['open', 'high', 'low', 'close', 'volume']
+        if not all(col in df.columns for col in required_cols):
+            print(f"Validation failed: DataFrame for {yfinance_asset} is missing required columns.", file=sys.stderr)
+            return pd.DataFrame()
         
         print("yfinance data loaded successfully.", file=sys.stderr)
         return df[['open', 'high', 'low', 'close', 'volume']]
