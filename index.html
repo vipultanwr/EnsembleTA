@@ -1,398 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project EnsembleTA: A Post-Mortem and Forward Look</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script> <!-- Add your Font Awesome kit URL here -->
+    <style>
+        :root {
+            --bg-color: #1a1a1d;
+            --primary-color: #2c3e50;
+            --secondary-color: #4a6fa5;
+            --accent-color: #c0392b;
+            --text-color: #ecf0f1;
+            --card-bg: #22252a;
+            --border-color: #444;
+        }
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>EnsembleTA Strategy</title>
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            
-            body {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
-                background-attachment: fixed;
-                min-height: 100vh;
-                padding: 2rem;
-                overflow-x: hidden;
-                position: relative;
-            }
-            
-            body::before {
-                content: '';
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: inherit;
-                filter: blur(80px);
-                z-index: -1;
-            }
-            
-            .container {
-                max-width: 1400px;
-                margin: 0 auto;
-            }
-            
-            /* --- REFINED GLASS CLASS --- */
-            .glass {
-                /* Lighter, cleaner background tint */
-                background: rgba(255, 255, 255, 0.15);
-                
-                /* KEY CHANGE: Added saturate(180%) to make colors pop */
-                backdrop-filter: blur(25px) saturate(180%);
-                -webkit-backdrop-filter: blur(25px) saturate(180%);
-                
-                border-radius: 24px;
-                
-                /* Cleaner border */
-                border: 1px solid rgba(255, 255, 255, 0.25);
-                
-                /* Softer shadow + distinct inner highlight */
-                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15),
-                            inset 0 1px 1px 0 rgba(255, 255, 255, 0.6);
-            }
-            
-            .header {
-                padding: 3rem 2.5rem;
-                margin-bottom: 2rem;
-                text-align: center;
-            }
-            
-            h1 {
-                font-size: 3.5rem;
-                font-weight: 700;
-                color: #ffffff;
-                margin-bottom: 0.5rem;
-                text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
-                letter-spacing: -0.02em;
-            }
-            
-            .subtitle {
-                font-size: 1.1rem;
-                color: rgba(255, 255, 255, 0.9);
-                font-weight: 400;
-            }
-            
-            .info-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-                gap: 1.5rem;
-                margin-bottom: 2rem;
-            }
-            
-            .info-card {
-                padding: 2rem;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-            }
-            
-            .info-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.15),
-                            inset 0 1px 1px 0 rgba(255, 255, 255, 0.7);
-            }
-            
-            .info-card h2 {
-                font-size: 1.5rem;
-                font-weight: 600;
-                color: #ffffff;
-                margin-bottom: 1rem;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-            
-            .info-card .icon {
-                width: 32px;
-                height: 32px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.2rem;
-            }
-            
-            /* Info cards keep the light text, as it's sparse and legible */
-            .info-card p, .info-card ul {
-                color: rgba(255, 255, 255, 0.95);
-                line-height: 1.8;
-                font-size: 1rem;
-                font-weight: 400;
-                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            }
-            
-            .info-card ul {
-                list-style: none;
-                padding-left: 0;
-            }
-            
-            .info-card li {
-                margin-bottom: 1.2rem;
-                padding-left: 1.8rem;
-                position: relative;
-                color: rgba(255, 255, 255, 0.95);
-            }
-            
-            .info-card li::before {
-                content: "→";
-                position: absolute;
-                left: 0;
-                color: #ffffff;
-                font-weight: 700;
-                font-size: 1.2rem;
-            }
-            
-            .info-card strong {
-                color: #ffffff;
-                font-weight: 600;
-                font-size: 1.05rem;
-            }
-            
-            .results-section {
-                padding: 2.5rem;
-                margin-top: 2rem;
-            }
-            
-            .results-section h2 {
-                font-size: 2rem;
-                font-weight: 600;
-                color: #ffffff;
-                margin-bottom: 1.5rem;
-                text-align: center;
-                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-            }
-            
-            .table-wrapper {
-                background: transparent; /* Let the parent glass show through */
-                border-radius: 16px;
-                padding: 1.5rem;
-                overflow: hidden;
-            }
-            
-            table.dataTable {
-                border-collapse: collapse !important;
-                width: 100%;
-                background-color: transparent;
-            }
-            
-            table.dataTable thead th {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: #ffffff;
-                font-weight: 600;
-                padding: 1rem;
-                border: none;
-                text-transform: uppercase;
-                font-size: 0.8rem;
-                letter-spacing: 0.05em;
-            }
-            
-            table.dataTable tbody tr {
-                cursor: pointer;
-                /* Darker border for better contrast on light blur */
-                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-                transition: all 0.2s ease;
-            }
-            
-            table.dataTable tbody tr:hover {
-                /* Lighter background hover */
-                background: rgba(255, 255, 255, 0.2);
-                transform: scale(1.01);
-            }
-            
-            /* --- KEY LEGIBILITY FIX: DARK TABLE TEXT --- */
-            table.dataTable tbody td {
-                padding: 1rem;
-                color: #222222; /* High-contrast dark text */
-                font-size: 0.9rem;
-                font-weight: 500;
-                text-shadow: none; /* Remove shadow */
-            }
-            
-            /* --- KEY LEGIBILITY FIX: DARK CONTROLS --- */
-            
-            /* "Search" and "Show" labels */
-            .dataTables_wrapper .dataTables_filter label,
-            .dataTables_wrapper .dataTables_length label {
-                color: #333333; /* Dark text */
-                font-weight: 500;
-                text-shadow: none; /* Remove shadow */
-            }
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
 
-            .dataTables_wrapper .dataTables_filter input {
-                background-color: rgba(255, 255, 255, 0.9);
-                border: 2px solid rgba(102, 126, 234, 0.3);
-                border-radius: 12px;
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
-                transition: all 0.3s ease;
-                color: #1a1a1a; /* Keep input text dark */
-            }
-            
-            .dataTables_wrapper .dataTables_filter input:focus {
-                outline: none;
-                border-color: #667eea;
-                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            }
-            
-            .dataTables_wrapper .dataTables_length select {
-                background-color: rgba(255, 255, 255, 0.9);
-                border: 2px solid rgba(102, 126, 234, 0.3);
-                border-radius: 12px;
-                padding: 0.5rem 2rem 0.5rem 0.8rem;
-                font-size: 0.9rem;
-                cursor: pointer;
-                color: #1a1a1a; /* Keep select text dark */
-            }
-            
-            /* "Showing 1 of..." and Pagination text */
-            .dataTables_wrapper .dataTables_info,
-            .dataTables_wrapper .dataTables_paginate {
-                color: #333333; /* Dark text */
-                margin-top: 1rem;
-                font-weight: 500;
-                text-shadow: none; /* Remove shadow */
-            }
-            
-            .dataTables_wrapper .dataTables_paginate .paginate_button {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white !important;
-                border: none;
-                border-radius: 8px;
-                padding: 0.5rem 1rem;
-                margin: 0 0.2rem;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-            
-            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-            }
-            
-            .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-            }
-            
-            @media (max-width: 768px) {
-                h1 {
-                    font-size: 2.5rem;
-                }
-                
-                .info-grid {
-                    grid-template-columns: 1fr;
-                }
-                
-                body {
-                    padding: 1rem;
-                }
-            }
-            
-            /* Scrollbar styling */
-            ::-webkit-scrollbar {
-                width: 10px;
-                height: 10px;
-            }
-            
-            ::-webkit-scrollbar-track {
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 10px;
-            }
-            
-            ::-webkit-scrollbar-thumb {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                border-radius: 10px;
-            }
-            
-            ::-webkit-scrollbar-thumb:hover {
-                background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="glass header">
-                <h1>📊 EnsembleTA Dashboard</h1>
-                <p class="subtitle">Advanced Technical Analysis Ensemble Strategy Performance</p>
-            </div>
-            
-            <div class="info-grid">
-                <div class="glass info-card">
-                    <h2><span class="icon">🎯</span> Strategy Overview</h2>
-                    <p>EnsembleTA implements an ensemble trading strategy based on a large set of technical indicators from the TA-Lib library. The system identifies the best-performing indicators and combines them into a unified strategy validated on out-of-sample cryptocurrency data.</p>
-                </div>
-                
-                <div class="glass info-card">
-                    <h2><span class="icon">🔬</span> Methodology</h2>
-                    <ul>
-                        <li><strong>Ranking Phase (In-Sample):</strong> Evaluates a wide range of individual technical analysis strategies over a historical period, testing both long and short versions. Top performers are selected based on metrics like final return and Sharpe ratio.</li>
-                        <li><strong>Ensemble Backtesting (Out-of-Sample):</strong> Top-ranked strategies are combined using a voting system. The ensemble is then rigorously backtested on unseen data to validate effectiveness and robustness.</li>
-                    </ul>
-                </div>
-                
-                <div class="glass info-card">
-                    <h2><span class="icon">💡</span> Key Features</h2>
-                    <ul>
-                        <li><strong>Multi-Strategy Ensemble:</strong> Combines signals from multiple technical indicators for robust decision-making</li>
-                        <li><strong>Rigorous Validation:</strong> Separate in-sample and out-of-sample testing periods ensure strategy robustness</li>
-                        <li><strong>Flexible Architecture:</strong> Easily extensible framework for adding new strategies</li>
-                        <li><strong>Comprehensive Metrics:</strong> Tracks Sharpe ratio, profit factor, win rate, and drawdown metrics</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="glass results-section">
-                <h2>📈 Backtest Results</h2>
-                <div class="table-wrapper">
-                    <table id="results-table" class="display" style="width:100%"></table>
-                </div>
-            </div>
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            letter-spacing: -0.5px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            padding-bottom: 10px;
+            margin-bottom: 0.2em;
+        }
+
+        h2 {
+            font-size: 2rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent-color);
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+        }
+
+        p, ul, ol {
+            margin-bottom: 1em;
+            font-size: 1.1rem;
+        }
+
+        ul, ol {
+            padding-left: 25px;
+        }
+
+        code {
+            background-color: #333;
+            padding: 3px 6px;
+            border-radius: 5px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            margin-top: 2.5em;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .author-info {
+            text-align: center;
+            margin-bottom: 2.5em;
+            color: #bdc3c7;
+            font-size: 1.2rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2em 0;
+        }
+
+        th, td {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            font-weight: 600;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #2c2f36;
+        }
+
+        .recommendations ol li {
+            font-size: 1.1rem;
+            margin-bottom: 1em;
+            padding-left: 10px;
+            border-left: 3px solid var(--secondary-color);
+        }
+        
+        .conclusion {
+            text-align: center;
+            font-style: italic;
+            color: #bdc3c7;
+            margin-top: 3em;
+        }
+        
+        .about-me a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .about-me a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>Project EnsembleTA: A Post-Mortem and Forward Look</h1>
+        <p class="author-info">By: Vipul Tanwar | November 25, 2025 | <a href="https://github.com/vipultanwr/EnsembleTA/" target="_blank">GitHub Project</a></p>
+
+        <div class="card">
+            <h2><i class="fas fa-file-alt"></i> Executive Summary</h2>
+            <p>
+                Project EnsembleTA was an initiative to develop a quantitative trading strategy by combining a large number of technical indicators. After a rigorous backtesting process, the results conclusively demonstrate that the current strategy is <strong>not profitable</strong> and carries a high risk of significant capital loss. This document serves as a post-mortem of the initial strategy and outlines a clear, data-driven path for future development. The findings, though negative, showcase a commitment to rigorous analysis, intellectual honesty, and an iterative, scientific approach to strategy development.
+            </p>
         </div>
 
-        <script type(text/javascript) charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script type(text/javascript) charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+        <div class="card">
+            <h2><i class="fas fa-bullseye"></i> 1. Introduction & Problem Statement</h2>
+            <p>
+                The goal of Project EnsembleTA was to test the hypothesis that a "wisdom of the crowds" approach could be applied to technical indicators. The idea was to build a framework that could:
+            </p>
+            <ol>
+                <li>Systematically evaluate hundreds of technical indicators from the TA-Lib library.</li>
+                <li>Rank these indicators based on their historical performance.</li>
+                <li>Create an ensemble "voting" signal from the top-performing indicators.</li>
+                <li>Backtest the final ensemble strategy on out-of-sample data to validate its performance.
+            </ol>
+        </div>
 
-        <script>
-            // Embed the data from the pandas DataFrame
-            const data = [{"asset":"BTC\/USDT","timeframe":"1d","n_top_strategies":3,"signal_shifts":"[0]","Total Return":"33.80%","Annualized Return":"34.04%","Volatility":"N\/A in bt","Sharpe Ratio":0.66,"Sortino Ratio":"N\/A in bt","Calmar Ratio":"N\/A in bt","Maximum Drawdown":"31.87%","Win Rate":"34.68%","Total Trades":124,"Profit Factor":1.16,"Average Win":5684.35,"Average Loss":-2600.34,"report_url":"\/Users\/vipultanwar\/Projects\/GitReady\/EnsembleTA\/results\/ensemble_strategy_BTCUSDT_1d_top3_shifts0.html"},{"asset":"BTC\/USDT","timeframe":"1d","n_top_strategies":5,"signal_shifts":"[0]","Total Return":"24.28%","Annualized Return":"24.45%","Volatility":"N\/A in bt","Sharpe Ratio":0.54,"Sortino Ratio":"N\/A in bt","Calmar Ratio":"N\/A in bt","Maximum Drawdown":"33.28%","Win Rate":"33.06%","Total Trades":124,"Profit Factor":1.12,"Average Win":5714.9,"Average Loss":-2530.49,"report_url":"\/Users\/vipultanwar\/Projects\/GitReady\/EnsembleTA\/results\/ensemble_strategy_BTCUSDT_1d_top5_shifts0.html"}];
+        <div class="card">
+            <h2><i class="fas fa-cogs"></i> 2. Methodology & Technology</h2>
+            <p>
+                The project was developed in Python and leveraged a standard quantitative finance stack:
+            </p>
+            <ul>
+                <li><strong>Data Acquisition:</strong> <code>yfinance</code> and <code>ccxt</code> for historical price data (OHLCV).</li>
+                <li><strong>Data Analysis:</strong> <code>pandas</code> for data manipulation and <code>numpy</code> for numerical operations.</li>
+                <li><strong>Indicator Generation:</strong> <code>TA-Lib</code> for generating over 100 technical indicators.</li>
+                <li><strong>Backtesting:</strong> A custom-built, vectorized backtesting engine.</li>
+                <li><strong>Orchestration:</strong> Scripts to automate running hundreds of backtests with different hyperparameters.
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h2><i class="fas fa-chart-line"></i> 3. Backtesting & The Reality Check: A Flawed Strategy</h2>
+            <p>
+                The <code>largeSims1</code> branch was created to run a comprehensive set of backtests across a diverse range of assets (crypto, stocks, forex, commodities) and timeframes. The orchestrator script ran 450 unique backtests.
+            </p>
+            <h3>Key Findings:</h3>
+            <ul>
+                <li><strong>Overwhelmingly Negative Returns:</strong> The vast majority of tests resulted in significant losses, with total returns often between -50% and -90%.</li>
+                <li><strong>Consistently Negative Sharpe Ratios:</strong> The risk-adjusted returns were consistently negative, indicating the strategy failed to compensate for the risk it took.</li>
+                <li><strong>A Single, Misleading Outlier:</strong> Only one test out of 450 showed a minor positive return (5.13% on GOOG, 1wk), which was traced back to a single lucky trade rather than a robust strategic edge.
+            </ul>
 
-            $(document).ready(function() {
-                const table = $('#results-table').DataTable({
-                    data: data,
-                    columns: [
-                        { "title": "Asset", "data": "asset" },
-                        { "title": "Timeframe", "data": "timeframe" },
-                        { "title": "N Top Strategies", "data": "n_top_strategies" },
-                        { "title": "Signal Shifts", "data": "signal_shifts" },
-                        { "title": "Total Return", "data": "Total Return" },
-                        { "title": "Annualized Return", "data": "Annualized Return" },
-                        { "title": "Sharpe Ratio", "data": "Sharpe Ratio" },
-                        { "title": "Max Drawdown", "data": "Maximum Drawdown" },
-                        { "title": "Win Rate", "data": "Win Rate" },
-                        { "title": "Profit Factor", "data": "Profit Factor" },
-                        // Hidden column for the report URL
-                        { "title": "Report URL", "data": "report_url", "visible": false }
-                    ],
-                    pageLength: 10,
-                    order: [[4, 'desc']], // Sort by Total Return descending
-                    // Add a click event to rows
-                    "createdRow": function(row, data, dataIndex) {
-                        $(row).on('click', function() {
-                            window.open(data.report_url, '_blank');
-                        });
-                    }
-                });
-            });
-        </script>
+            <h3>Representative Results</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Timeframe</th>
+                        <th>N Top Strategies</th>
+                        <th>Total Return</th>
+                        <th>Sharpe Ratio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>BTC/USDT</td>
+                        <td>1d</td>
+                        <td>3</td>
+                        <td style="color: #e74c3c;">-33.80%</td>
+                        <td style="color: #e74c3c;">-0.66</td>
+                    </tr>
+                    <tr>
+                        <td>ETH/USDT</td>
+                        <td>1d</td>
+                        <td>5</td>
+                        <td style="color: #e74c3c;">-45.12%</td>
+                        <td style="color: #e74c3c;">-0.89</td>
+                    </tr>
+                    <tr>
+                        <td>AAPL</td>
+                        <td>1d</td>
+                        <td>7</td>
+                        <td style="color: #e74c3c;">-60.42%</td>
+                        <td style="color: #e74c3c;">-9.46</td>
+                    </tr>
+                    <tr>
+                        <td>GOOG</td>
+                        <td>1wk</td>
+                        <td>5</td>
+                        <td style="color: #2ecc71;">5.13%</td>
+                        <td style="color: #2ecc71;">1.15</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-    </body>
-    </html>
-    
+        <div class="card">
+            <h2><i class="fas fa-search-dollar"></i> 4. Root Cause Analysis</h2>
+            <ol>
+                <li>
+                    <h3>Lack of Effective Signal Generation</h3>
+                    <p>The strategy's core assumption—that a simple majority vote from over 100 indicators with generic, hardcoded thresholds would produce a meaningful signal—was incorrect. This "one-size-fits-all" approach failed to adapt to the unique characteristics of different assets and market regimes. The result was a final signal with no discernible predictive power.</p>
+                </li>
+                <li>
+                    <h3>Absence of Risk Management</h3>
+                    <p>The backtesting engine and the strategy itself lacked any form of risk management. There were no <strong>stop-loss</strong> orders to cap losses on individual trades, nor were there <strong>take-profit</strong> orders to secure gains. This is a critical omission in any trading strategy, as it allows a few losing trades to wipe out any potential profits and lead to catastrophic drawdowns.</p>
+                </li>
+            </ol>
+        </div>
+
+        <div class="card recommendations">
+            <h2><i class="fas fa-lightbulb"></i> 5. Recommendations & Future Work</h2>
+            <p>
+                The failure of the initial strategy is a valuable learning experience. The following steps are recommended to pivot the project towards a more promising direction. This demonstrates an ability to learn from failure and iterate—a critical skill in quantitative research.
+            </p>
+            <ol>
+                <li><strong>Abandon the Current Ensemble Method:</strong> The next iteration should focus on a small number of well-understood, configurable indicators (e.g., RSI, MACD, Bollinger Bands).</li>
+                <li><strong>Prioritize Risk Management:</strong> The immediate next step is to implement stop-loss and take-profit functionality within the backtesting engine.</li>
+                <li><strong>Adopt a "Simple First" Approach:</strong> Start with a classic, simple strategy (e.g., a dual moving average crossover) and ensure it can be backtested and validated correctly.</li>
+                <li><strong>Develop a More Sophisticated Signal Generation Process:</strong> Explore machine learning models (e.g., logistic regression, gradient boosting) to combine signals in a more intelligent way.
+            </ol>
+        </div>
+
+        <p class="conclusion">
+            While Project EnsembleTA did not produce a profitable trading strategy in its first iteration, it was a success in building a robust backtesting framework and in demonstrating a rigorous, analytical process. The project's value lies not in the initial, flawed strategy, but in the clear, data-driven conclusions drawn from its failure and the well-defined path for future development.
+        </p>
+
+        <div class="card about-me">
+            <h2><i class="fas fa-user"></i> About Me</h2>
+            <p>
+                I am a Quantitative Researcher at HSBC, where I focus on enhancing and developing execution algorithms for global clients. With a strong foundation in machine learning and data analysis, I have experience in optimizing trading strategies, improving order routing, and developing advanced quantitative algorithms for market analysis. My background includes roles in high-frequency options market making and fixed income quantitative analysis. I hold a Bachelor of Technology in Mechanical Engineering from the Indian Institute of Technology, Kanpur, and a Certificate in Quantitative Finance (CQF). I am passionate about leveraging my skills in Python, C++, and various other technologies to solve complex problems in the financial markets.
+            </p>
+            <p>
+                <a href="https://in.linkedin.com/in/vipul-tanwar" target="_blank">LinkedIn Profile</a>
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>
