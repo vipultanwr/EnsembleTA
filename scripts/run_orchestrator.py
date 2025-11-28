@@ -1,3 +1,4 @@
+import argparse
 import yaml
 import itertools
 import subprocess
@@ -11,12 +12,18 @@ def run_orchestration():
     Runs backtests for multiple combinations of parameters, collects the results,
     and saves them to a master CSV file.
     """
+    # --- Argument Parsing for Config File ---
+    parser = argparse.ArgumentParser(description='Run orchestration with a specific config file.')
+    parser.add_argument('--config', type=str, default='config.yaml',
+                        help='Path to the configuration file (e.g., config.yaml)')
+    args = parser.parse_args()
+
     # --- Load Configuration ---
     # Get the directory where the current script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
     # Go up one level to the project root
     project_root = os.path.abspath(os.path.join(script_dir, '..'))
-    config_path = os.path.join(project_root, 'config.yaml')
+    config_path = os.path.join(project_root, args.config)
 
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)

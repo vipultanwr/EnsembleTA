@@ -1,37 +1,38 @@
 # --- Fixed Date Parameters ---
-ranking_start_date: '2021-01-01'
-ranking_end_date: '2021-12-31'
-backtest_start_date: '2022-01-01'
-backtest_end_date: '2022-12-31'
+ranking_start_date: '2023-01-01'
+ranking_end_date: '2023-06-30'
+backtest_start_date: '2023-07-01'
+backtest_end_date: '2023-12-31'
 
 # --- Fixed Backtesting Parameters ---
 initial_cash: 100000.0
-commission_pct: 0.0
-slippage_pct: 0.0
+commission_pct: 0.001
+slippage_pct: 0.0005
 
 # --- Tunable Parameters (Hyperparameters for Orchestration) ---
 param_grid:
   asset:
-    - 'BTC/USDT'
-    - 'ETH/USDT'
-    - 'SOL/USDT'
-    - 'XRP/USDT'
-    - 'ADA/USDT'
+    - 'BTC/USDT'   # Crypto
+    - 'ETH/USDT'   # Crypto
+    - 'AAPL'       # Stock (US)
+    - 'GOOG'       # Stock (US)
+    - 'EURUSD=X'   # Forex
+    - 'GBPJPY=X'   # Forex
+    - 'RELIANCE.NS' # Indian Stock (NSE - Reliance Industries)
+    - 'TCS.NS'      # Indian Stock (NSE - Tata Consultancy Services)
+    - 'GC=F'       # Precious Metal (Gold Futures)
+    - 'SI=F'       # Precious Metal (Silver Futures)
   timeframe:
-    - '15m'
-    - '30m'
-    - '1h'
-    - '4h'
     - '1d'
+    - '1wk'
+    - '1mo'
   n_top_strategies:
     - 3
     - 5
     - 7
-    - 10
-    - 15
   signal_shifts:
     - [0]
     - [1]
     - [2]
-    - [1, 2]
-    - [1, 2, 3]
+    - [0, 1]
+    - [0, 1, 2]
