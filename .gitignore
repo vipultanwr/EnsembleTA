@@ -93,6 +93,6 @@ cython_debug/
 *.pkl
 
 # Generated artifacts
-results/
 unused_files/
+results/
 gemini.md
