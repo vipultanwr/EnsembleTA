@@ -94,4 +94,5 @@ cython_debug/
 
 # Generated artifacts
 unused_files/
+results/
 gemini.md
