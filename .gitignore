@@ -95,5 +95,5 @@ cython_debug/
 # Generated artifacts
 results/
 unused_files/
-gemini.md
 results_data.json
+TODO.md

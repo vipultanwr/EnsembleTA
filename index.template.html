@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project EnsembleTA: A Post-Mortem and Forward Look</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script> <!-- Add your Font Awesome kit URL here -->
+    <style>
+        :root {
+            --bg-color: #1a1a1d;
+            --primary-color: #2c3e50;
+            --secondary-color: #4a6fa5;
+            --accent-color: #c0392b;
+            --text-color: #ecf0f1;
+            --card-bg: #22252a;
+            --border-color: #444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            letter-spacing: -0.5px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            padding-bottom: 10px;
+            margin-bottom: 0.2em;
+        }
+
+        h2 {
+            font-size: 2rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent-color);
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+        }
+
+        p, ul, ol {
+            margin-bottom: 1em;
+            font-size: 1.1rem;
+        }
+
+        ul, ol {
+            padding-left: 25px;
+        }
+
+        code {
+            background-color: #333;
+            padding: 3px 6px;
+            border-radius: 5px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            margin-top: 2.5em;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #3a5a8a;
+        }
+
+        .author-info {
+            text-align: center;
+            margin-bottom: 2.5em;
+            color: #bdc3c7;
+            font-size: 1.2rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2em 0;
+        }
+
+        th, td {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            font-weight: 600;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #2c2f36;
+        }
+
+        .recommendations ol li {
+            font-size: 1.1rem;
+            margin-bottom: 1em;
+            padding-left: 10px;
+            border-left: 3px solid var(--secondary-color);
+        }
+        
+        .conclusion {
+            text-align: center;
+            font-style: italic;
+            color: #bdc3c7;
+            margin-top: 3em;
+        }
+        
+        .about-me a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .about-me a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>Project EnsembleTA: A Post-Mortem and Forward Look</h1>
+        <p class="author-info">By: Vipul Tanwar | November 25, 2025 | <a href="https://github.com/vipultanwr/EnsembleTA/" target="_blank">GitHub Project</a></p>
+
+        <div class="card">
+            <h2><i class="fas fa-file-alt"></i> Executive Summary</h2>
+            <p>
+                Project EnsembleTA was an initiative to develop a quantitative trading strategy by combining a large number of technical indicators. After a rigorous backtesting process, the results conclusively demonstrate that the current strategy is <strong>not profitable</strong> and carries a high risk of significant capital loss. This document serves as a post-mortem of the initial strategy and outlines a clear, data-driven path for future development. The findings, though negative, showcase a commitment to rigorous analysis, intellectual honesty, and an iterative, scientific approach to strategy development.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-bullseye"></i> 1. Introduction & Problem Statement</h2>
+            <p>
+                The goal of Project EnsembleTA was to test the hypothesis that a "wisdom of the crowds" approach could be applied to technical indicators. The idea was to build a framework that could:
+            </p>
+            <ol>
+                <li>Systematically evaluate hundreds of technical indicators from the TA-Lib library.</li>
+                <li>Rank these indicators based on their historical performance.</li>
+                <li>Create an ensemble "voting" signal from the top-performing indicators.</li>
+                <li>Backtest the final ensemble strategy on out-of-sample data to validate its performance.
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-cogs"></i> 2. Methodology & Technology</h2>
+            <p>
+                The project was developed in Python and leveraged a standard quantitative finance stack:
+            </p>
+            <ul>
+                <li><strong>Data Acquisition:</strong> <code>yfinance</code> and <code>ccxt</code> for historical price data (OHLCV).</li>
+                <li><strong>Data Analysis:</strong> <code>pandas</code> for data manipulation and <code>numpy</code> for numerical operations.</li>
+                <li><strong>Indicator Generation:</strong> <code>TA-Lib</code> for generating over 100 technical indicators.</li>
+                <li><strong>Backtesting:</strong> A custom-built, vectorized backtesting engine.</li>
+                <li><strong>Orchestration:</strong> Scripts to automate running hundreds of backtests with different hyperparameters.
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h2><i class="fas fa-chart-line"></i> 3. Backtesting & The Reality Check: A Flawed Strategy</h2>
+            <p>
+                The <code>largeSims1</code> branch was created to run a comprehensive set of backtests across a diverse range of assets (crypto, stocks, forex, commodities) and timeframes. The orchestrator script ran 450 unique backtests.
+            </p>
+            <h3>Key Findings:</h3>
+            <ul>
+                <li><strong>Overwhelmingly Negative Returns:</strong> The vast majority of tests resulted in significant losses, with total returns often between -50% and -90%.</li>
+                <li><strong>Consistently Negative Sharpe Ratios:</strong> The risk-adjusted returns were consistently negative, indicating the strategy failed to compensate for the risk it took.</li>
+                <li><strong>A Single, Misleading Outlier:</strong> Only one test out of 450 showed a minor positive return (5.13% on GOOG, 1wk), which was traced back to a single lucky trade rather than a robust strategic edge.
+            </ul>
+
+            <h3>Representative Results</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Timeframe</th>
+                        <th>N Top Strategies</th>
+                        <th>Total Return</th>
+                        <th>Sharpe Ratio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>BTC/USDT</td>
+                        <td>1d</td>
+                        <td>3</td>
+                        <td style="color: #e74c3c;">-33.80%</td>
+                        <td style="color: #e74c3c;">-0.66</td>
+                    </tr>
+                    <tr>
+                        <td>ETH/USDT</td>
+                        <td>1d</td>
+                        <td>5</td>
+                        <td style="color: #e74c3c;">-45.12%</td>
+                        <td style="color: #e74c3c;">-0.89</td>
+                    </tr>
+                    <tr>
+                        <td>AAPL</td>
+                        <td>1d</td>
+                        <td>7</td>
+                        <td style="color: #e74c3c;">-60.42%</td>
+                        <td style="color: #e74c3c;">-9.46</td>
+                    </tr>
+                    <tr>
+                        <td>GOOG</td>
+                        <td>1wk</td>
+                        <td>5</td>
+                        <td style="color: #2ecc71;">5.13%</td>
+                        <td style="color: #2ecc71;">1.15</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Explore Individual Results</h3>
+            <p>
+                While the overall strategy was not profitable, the backtesting framework generated a wealth of data for individual parameter combinations. The interactive dashboard below allows you to explore the results for each specific backtest run. Use the dropdown menus to select a combination of asset, timeframe, and other parameters to view the corresponding performance charts.
+            </p>
+            <!-- DASHBOARD_PLACEHOLDER -->
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-search-dollar"></i> 4. Root Cause Analysis</h2>
+            <ol>
+                <li>
+                    <h3>Lack of Effective Signal Generation</h3>
+                    <p>The strategy's core assumption—that a simple majority vote from over 100 indicators with generic, hardcoded thresholds would produce a meaningful signal—was incorrect. This "one-size-fits-all" approach failed to adapt to the unique characteristics of different assets and market regimes. The result was a final signal with no discernible predictive power.</p>
+                </li>
+                <li>
+                    <h3>Absence of Risk Management</h3>
+                    <p>The backtesting engine and the strategy itself lacked any form of risk management. There were no <strong>stop-loss</strong> orders to cap losses on individual trades, nor were there <strong>take-profit</strong> orders to secure gains. This is a critical omission in any trading strategy, as it allows a few losing trades to wipe out any potential profits and lead to catastrophic drawdowns.</p>
+                </li>
+            </ol>
+        </div>
+
+        <div class="card recommendations">
+            <h2><i class="fas fa-lightbulb"></i> 5. Recommendations & Future Work</h2>
+            <p>
+                The failure of the initial strategy is a valuable learning experience. The following steps are recommended to pivot the project towards a more promising direction. This demonstrates an ability to learn from failure and iterate—a critical skill in quantitative research.
+            </p>
+            <ol>
+                <li><strong>Abandon the Current Ensemble Method:</strong> The next iteration should focus on a small number of well-understood, configurable indicators (e.g., RSI, MACD, Bollinger Bands).</li>
+                <li><strong>Prioritize Risk Management:</strong> The immediate next step is to implement stop-loss and take-profit functionality within the backtesting engine.</li>
+                <li><strong>Adopt a "Simple First" Approach:</strong> Start with a classic, simple strategy (e.g., a dual moving average crossover) and ensure it can be backtested and validated correctly.</li>
+                <li><strong>Develop a More Sophisticated Signal Generation Process:</strong> Explore machine learning models (e.g., logistic regression, gradient boosting) to combine signals in a more intelligent way.
+            </ol>
+        </div>
+
+        <p class="conclusion">
+            While Project EnsembleTA did not produce a profitable trading strategy in its first iteration, it was a success in building a robust backtesting framework and in demonstrating a rigorous, analytical process. The project's value lies not in the initial, flawed strategy, but in the clear, data-driven conclusions drawn from its failure and the well-defined path for future development.
+        </p>
+
+        <div class="card about-me">
+            <h2><i class="fas fa-user"></i> About Me</h2>
+            <p>
+                I am a Quantitative Researcher at HSBC, where I focus on enhancing and developing execution algorithms for global clients. With a strong foundation in machine learning and data analysis, I have experience in optimizing trading strategies, improving order routing, and developing advanced quantitative algorithms for market analysis. My background includes roles in high-frequency options market making and fixed income quantitative analysis. I hold a Bachelor of Technology in Mechanical Engineering from the Indian Institute of Technology, Kanpur, and a Certificate in Quantitative Finance (CQF). I am passionate about leveraging my skills in Python, C++, and various other technologies to solve complex problems in the financial markets.
+            </p>
+            <p>
+                <a href="https://in.linkedin.com/in/vipul-tanwar" target="_blank">LinkedIn Profile</a>
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>
