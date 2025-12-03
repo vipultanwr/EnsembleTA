@@ -88,6 +88,22 @@
             transform: translateY(-5px);
         }
 
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #3a5a8a;
+        }
+
         .author-info {
             text-align: center;
             margin-bottom: 2.5em;
@@ -155,6 +171,7 @@
             <p>
                 Project EnsembleTA was an initiative to develop a quantitative trading strategy by combining a large number of technical indicators. After a rigorous backtesting process, the results conclusively demonstrate that the current strategy is <strong>not profitable</strong> and carries a high risk of significant capital loss. This document serves as a post-mortem of the initial strategy and outlines a clear, data-driven path for future development. The findings, though negative, showcase a commitment to rigorous analysis, intellectual honesty, and an iterative, scientific approach to strategy development.
             </p>
+            <a href="results.html" class="btn">View Dashboard</a>
         </div>
 
         <div class="card">
